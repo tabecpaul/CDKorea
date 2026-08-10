@@ -1,0 +1,31 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { ArrowRight, Compass, HeartHandshake, Sparkles, Target } from "lucide-react";
+import OfficialCtaLink from "@/features/official-site/components/OfficialCtaLink";
+import { Eyebrow, FinalCta, Section } from "@/features/official-site/components/OfficialPageShell";
+import { ctas, site } from "@/features/official-site/content";
+
+export const metadata: Metadata = {
+  title: "Career Direct Korea | 진로 불안에서 분명한 실행까지",
+  description: "성격·흥미·재능·가치관을 바탕으로 Career Direct 평가, 커리어 컨설팅, 실행계획을 연결합니다.",
+  alternates: { canonical: "/" },
+};
+
+const problems = ["열심히 해도 확신이 없습니다", "이직해도 같은 고민이 반복됩니다", "강점과 일을 연결하기 어렵습니다", "현실과 소명 사이에서 갈등합니다"];
+const compasses = [{ name: "성격", text: "나는 어떻게 일하는가", icon: Compass }, { name: "흥미", text: "무엇에 끌리는가", icon: HeartHandshake }, { name: "재능", text: "무엇을 잘하는가", icon: Sparkles }, { name: "가치관", text: "무엇이 중요한가", icon: Target }];
+const journey = ["현실 인식", "자가진단", "Career Direct 평가", "보고서 해석 컨설팅", "인터랙티브 실행계획", "필요시 후속 코칭"];
+
+export default function OfficialHomePage() {
+  const organizationJsonLd = { "@context": "https://schema.org", "@type": "Organization", name: site.name, url: site.url, telephone: site.phone, email: site.email, address: { "@type": "PostalAddress", streetAddress: site.address, addressCountry: "KR" } };
+  return <>
+    <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd).replace(/</g, "\\u003c") }} />
+    <section className="relative overflow-hidden bg-cream px-5 py-20 sm:px-8 sm:py-28"><div className="absolute -right-24 top-8 h-80 w-80 rounded-full bg-teal/10 blur-3xl" /><div className="relative mx-auto grid max-w-7xl gap-12 lg:grid-cols-[1.15fr_.85fr] lg:items-center"><div><Eyebrow>진로 불안에서 분명한 실행까지</Eyebrow><h1 className="mt-5 text-4xl font-black leading-[1.15] tracking-tight sm:text-6xl lg:text-7xl">왜 열심히 사는데<br />진로 불안과<br /><span className="text-teal">번아웃</span>을 느끼나요?</h1><p className="mt-7 max-w-xl text-lg leading-8 text-navy/65">문제는 노력이 부족해서가 아니라, 나를 충분히 이해하지 못한 채 방향을 정하려 했기 때문일 수 있습니다.</p><div className="mt-9 flex flex-col gap-3 sm:flex-row"><OfficialCtaLink href={ctas.careerCheck.href} eventName={ctas.careerCheck.eventName} ctaLocation="official_hero_primary" className="rounded-full bg-gold px-7 py-4 text-center font-bold text-navy">{ctas.careerCheck.label}</OfficialCtaLink><OfficialCtaLink href={ctas.callback.href} eventName={ctas.callback.eventName} ctaLocation="official_hero_secondary" className="rounded-full border border-navy/15 bg-white px-7 py-4 text-center font-bold text-navy">{ctas.callback.label}</OfficialCtaLink></div></div><div className="rounded-[2rem] bg-navy p-8 text-white shadow-2xl sm:p-12"><p className="text-sm font-bold text-teal">DIRECTION BEFORE DECISION</p><blockquote className="mt-8 text-3xl font-black leading-snug">“방향보다 자기이해가 먼저일 수 있습니다.”</blockquote><p className="mt-8 leading-7 text-white/65">검사 결과 한 장이 아니라, 고유한 설계를 현실의 선택과 실행으로 연결합니다.</p></div></div></section>
+    <Section eyebrow="REALITY CHECK" title="직업의 문제가 아니라 방향의 문제일 수 있습니다"><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{problems.map((problem, index) => <div key={problem} className="rounded-2xl border border-navy/10 bg-cream p-6"><span className="text-sm font-black text-gold">0{index + 1}</span><p className="mt-4 font-bold leading-7 text-navy">{problem}</p></div>)}</div></Section>
+    <Section eyebrow="FOUR COMPASSES" title="방향을 정하기 전에 나를 입체적으로 이해합니다"><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{compasses.map(({ name, text, icon: Icon }) => <div key={name} className="rounded-3xl bg-cream p-7"><Icon className="size-7 text-teal" /><h3 className="mt-8 text-2xl font-black text-navy">{name}</h3><p className="mt-2">{text}</p></div>)}</div><Link href="/assessment" className="mt-8 inline-flex items-center gap-2 font-bold text-teal">평가 자세히 보기 <ArrowRight className="size-4" /></Link></Section>
+    <Section eyebrow="ONE CONNECTED JOURNEY" title="검사 결과를 받는 데서 끝나지 않습니다" dark><ol className="grid gap-3 md:grid-cols-3 lg:grid-cols-6">{journey.map((step, index) => <li key={step} className="rounded-2xl border border-white/10 bg-white/5 p-5"><span className="text-xs font-black text-gold">STEP {index + 1}</span><p className="mt-3 font-bold text-white">{step}</p></li>)}</ol></Section>
+    <Section eyebrow="START WHERE YOU ARE" title="상황에 맞는 시작점을 선택하세요"><div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">{[["대학생", "전공과 첫 진로"], ["청년 직장인", "진로불안·이직·번아웃"], ["부모", "자녀의 고유한 설계 이해"], ["교회·대학", "워크숍·단체 프로그램"]].map(([title, text]) => <div key={title} className="rounded-2xl border border-navy/10 p-6"><h3 className="text-xl font-black text-navy">{title}</h3><p className="mt-3">{text}</p></div>)}</div></Section>
+    <section className="bg-cream px-5 py-20 sm:px-8"><div className="mx-auto grid max-w-6xl gap-10 lg:grid-cols-2 lg:items-center"><div className="rounded-[2rem] bg-gold p-10"><p className="text-sm font-black tracking-widest text-navy/60">LIVING BY DESIGN</p><p className="mt-8 text-3xl font-black leading-snug">성격, 흥미, 재능, 가치관. 4가지 나침반으로 진로 방향을 점검하세요.</p></div><div><Eyebrow>FAITH &amp; VOCATION</Eyebrow><h2 className="mt-4 text-3xl font-black leading-tight sm:text-4xl">일은 생계를 넘어, 부르심에 응답하는 삶의 자리입니다</h2><p className="mt-5 leading-8 text-navy/65">Career Direct Korea는 개인의 고유한 설계를 발견하고 신앙·일·삶을 통합하도록 돕습니다. 신앙을 강요하지 않으며, 원하는 개인과 기관에는 분명한 기독교 세계관으로 안내합니다.</p></div></div></section>
+    <Section eyebrow="ASSESSMENT & CONSULTING" title="평가에서 현실적인 실행까지"><div className="grid gap-5 md:grid-cols-2"><Link href="/assessment" className="group rounded-3xl border border-navy/10 p-8 hover:border-teal"><p className="text-sm font-black text-teal">CAREER DIRECT 평가</p><h3 className="mt-4 text-2xl font-black text-navy">고유한 설계를 통합적으로 이해합니다</h3><p className="mt-4 leading-7">4가지 영역을 종합한 보고서와 전문 컨설턴트의 해석을 제공합니다.</p></Link><Link href="/consulting" className="group rounded-3xl border border-navy/10 p-8 hover:border-teal"><p className="text-sm font-black text-teal">커리어 컨설팅</p><h3 className="mt-4 text-2xl font-black text-navy">선택과 실행계획을 함께 설계합니다</h3><p className="mt-4 leading-7">현실 조건을 검토하고 실행 가능한 진로 가설과 다음 행동을 세웁니다.</p></Link></div></Section>
+    <FinalCta primary="careerCheck" />
+  </>;
+}

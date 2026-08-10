@@ -25,6 +25,38 @@ export const consultationRequests = pgTable("consultation_requests", {
     .defaultNow(),
 });
 
+export const organizationInquiries = pgTable(
+  "organization_inquiries",
+  {
+    id: serial("id").primaryKey(),
+    organizationName: varchar("organization_name", { length: 160 }).notNull(),
+    organizationType: varchar("organization_type", { length: 32 }).notNull(),
+    contactName: varchar("contact_name", { length: 60 }).notNull(),
+    email: varchar("email", { length: 256 }).notNull(),
+    phone: varchar("phone", { length: 32 }).notNull(),
+    programInterests: text("program_interests").array().notNull(),
+    estimatedParticipants: integer("estimated_participants"),
+    message: varchar("message", { length: 1000 }),
+    privacyAgreed: boolean("privacy_agreed").notNull(),
+    consentVersion: varchar("consent_version", { length: 32 }).notNull(),
+    utmSource: varchar("utm_source", { length: 128 }),
+    utmMedium: varchar("utm_medium", { length: 128 }),
+    utmCampaign: varchar("utm_campaign", { length: 128 }),
+    utmContent: varchar("utm_content", { length: 128 }),
+    anonymousId: varchar("anonymous_id", { length: 64 }),
+    status: varchar("status", { length: 24 }).notNull().default("new"),
+    notificationEmailStatus: varchar("notification_email_status", { length: 16 }).notNull().default("pending"),
+    notificationEmailError: varchar("notification_email_error", { length: 80 }),
+    notificationEmailId: varchar("notification_email_id", { length: 128 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("organization_inquiries_status_created_idx").on(table.status, table.createdAt),
+    index("organization_inquiries_email_created_idx").on(table.email, table.createdAt),
+  ],
+);
+
 export const leadMagnetLeads = pgTable(
   "lead_magnet_leads",
   {

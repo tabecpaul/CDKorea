@@ -2,7 +2,7 @@
 
 import { useEffect } from "react";
 
-export default function PageViewTracker() {
+export default function PageViewTracker({ eventName = "landing_viewed" }: { eventName?: "landing_viewed" | "official_page_viewed" }) {
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     void fetch("/api/analytics/events", {
@@ -10,7 +10,7 @@ export default function PageViewTracker() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         eventId: crypto.randomUUID(),
-        eventName: "landing_viewed",
+        eventName,
         path: window.location.pathname,
         utmSource: params.get("utm_source"),
         utmMedium: params.get("utm_medium"),
@@ -19,6 +19,6 @@ export default function PageViewTracker() {
       }),
       keepalive: true,
     });
-  }, []);
+  }, [eventName]);
   return null;
 }
