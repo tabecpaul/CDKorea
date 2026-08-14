@@ -9,6 +9,7 @@ export const officialPublicPaths = [
 
 export const startOwnedPrefixes = [
   "/career-check",
+  "/callback",
   "/assessment-consultation",
   "/callback-schedule",
   "/checkout",
