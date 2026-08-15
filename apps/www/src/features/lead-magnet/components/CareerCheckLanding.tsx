@@ -13,6 +13,7 @@ import {
   Target,
 } from "lucide-react";
 import Footer from "@/components/sections/Footer";
+import CareerDirectLogo from "@/components/CareerDirectLogo";
 import LeadCaptureForm from "./LeadCaptureForm";
 import PageViewTracker from "@/features/analytics/components/PageViewTracker";
 import TrackedExternalLink from "@/features/analytics/components/TrackedExternalLink";
@@ -55,10 +56,7 @@ export default function CareerCheckLanding() {
           <div className="absolute inset-x-0 top-0 h-[36rem] bg-[radial-gradient(circle_at_75%_10%,rgba(79,158,169,.18),transparent_38%),linear-gradient(to_bottom,rgba(255,255,255,.72),transparent)]" aria-hidden />
           <nav className="relative mx-auto flex max-w-6xl items-center justify-between">
             <Link href="/" className="flex items-center gap-3" aria-label="Career Direct Korea 홈">
-              <span className="rounded-xl bg-white px-3 py-2 shadow-sm">
-                <Image src="/career-direct-logo.png" alt="Career Direct" width={164} height={46} className="h-8 w-auto" priority />
-              </span>
-              <span className="text-sm font-black tracking-[.16em] text-navy">KOREA</span>
+              <CareerDirectLogo priority />
             </Link>
             <a href="#lead-form" className="hidden rounded-full border border-navy/15 bg-white/70 px-5 py-2.5 text-sm font-bold text-navy backdrop-blur transition hover:bg-white sm:block">PDF 무료 받기</a>
           </nav>
