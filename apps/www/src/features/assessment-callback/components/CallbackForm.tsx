@@ -9,6 +9,7 @@ import {
   maritalStatusOptions,
   timeSlots,
 } from "../domain";
+import { formatKoreanMobilePhone } from "../phone";
 
 type Props = {
   minDate: string;
@@ -34,6 +35,7 @@ const errorMessages: Record<string, string> = {
 
 export default function CallbackForm({ minDate, maxDate, attribution }: Props) {
   const [topics, setTopics] = useState<string[]>([]);
+  const [phone, setPhone] = useState("");
   const [privacyAgreed, setPrivacyAgreed] = useState(false);
   const [marketingAgreed, setMarketingAgreed] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -92,7 +94,7 @@ export default function CallbackForm({ minDate, maxDate, attribution }: Props) {
     <form onSubmit={submit} className="rounded-[2rem] border border-navy/10 bg-cream p-6 shadow-sm sm:p-9">
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="grid gap-2 text-sm font-bold text-navy">이름<input name="name" required minLength={2} maxLength={60} className={field} placeholder="이름을 입력해 주세요" /></label>
-        <label className="grid gap-2 text-sm font-bold text-navy">휴대전화<input name="phone" required inputMode="tel" className={field} placeholder="010-0000-0000" /></label>
+        <label className="grid gap-2 text-sm font-bold text-navy">휴대전화<input name="phone" required inputMode="tel" autoComplete="tel" maxLength={13} value={phone} onChange={(event) => setPhone(formatKoreanMobilePhone(event.target.value))} className={field} placeholder="010-0000-0000" /></label>
         <label className="grid gap-2 text-sm font-bold text-navy sm:col-span-2">이메일<input name="email" required type="email" className={field} placeholder="example@email.com" /></label>
         <label className="grid gap-2 text-sm font-bold text-navy">희망 날짜<input name="preferredDate" required type="date" min={minDate} max={maxDate} className={field} /></label>
         <label className="grid gap-2 text-sm font-bold text-navy">희망 시간대<select name="timeSlot" required defaultValue="" className={field}><option value="" disabled>선택해 주세요</option>{timeSlots.map((item) => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
