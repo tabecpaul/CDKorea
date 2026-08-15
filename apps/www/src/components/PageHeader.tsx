@@ -1,22 +1,13 @@
 import Link from "next/link";
-import Image from "next/image";
 import { ArrowLeft } from "lucide-react";
+import CareerDirectLogo from "@/components/CareerDirectLogo";
 
 export default function PageHeader() {
   return (
     <header className="border-b border-navy/10 bg-cream px-6 py-5 sm:px-10">
       <div className="mx-auto flex w-full max-w-3xl items-center justify-between">
-        <Link href="/" className="flex items-center gap-2">
-          <Image
-            src="/career-direct-logo.png"
-            alt="Career Direct"
-            width={120}
-            height={34}
-            className="h-7 w-auto"
-          />
-          <span className="text-sm font-black tracking-tight text-navy">
-            Korea
-          </span>
+        <Link href="/" aria-label="Career Direct Korea 홈">
+          <CareerDirectLogo className="h-7 w-auto" priority />
         </Link>
         <Link
           href="/"
