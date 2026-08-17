@@ -1,6 +1,7 @@
-import { and, desc, eq, inArray } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { db, systemJobRuns } from "@newland/db";
 import { monitoredJobNames, type MonitoredJobName } from "../domain";
+import { collectLatestSuccessfulRuns } from "./latestSuccessfulRuns";
 
 function safeErrorCode(value: unknown) {
   return value instanceof Error ? (value.message || value.name).slice(0, 80) : "JOB_FAILED";
@@ -21,10 +22,11 @@ export async function failJobRun(id: number, error: unknown) {
 }
 
 export async function latestSuccessfulRuns(jobNames: readonly MonitoredJobName[] = monitoredJobNames) {
-  const rows = await db.query.systemJobRuns.findMany({
-    where: and(inArray(systemJobRuns.jobName, [...jobNames]), eq(systemJobRuns.status, "succeeded")),
-    orderBy: [desc(systemJobRuns.completedAt)],
-    limit: 100,
+  return collectLatestSuccessfulRuns(jobNames, async (jobName) => {
+    const run = await db.query.systemJobRuns.findFirst({
+      where: and(eq(systemJobRuns.jobName, jobName), eq(systemJobRuns.status, "succeeded")),
+      orderBy: [desc(systemJobRuns.completedAt)],
+    });
+    return run?.completedAt ?? null;
   });
-  return jobNames.map((jobName) => ({ jobName, completedAt: rows.find((row) => row.jobName === jobName)?.completedAt ?? null }));
 }
