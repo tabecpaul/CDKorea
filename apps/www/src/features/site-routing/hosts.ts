@@ -27,6 +27,11 @@ export function isStartHost(host: string) {
   return normalizeHost(host) === new URL(START_SITE_URL).hostname;
 }
 
+export function startRootRedirectUrl(host: string, pathname: string, search = "") {
+  if (!isStartHost(host) || pathname !== "/") return null;
+  return new URL(`/career-check${search}`, `${START_SITE_URL}/`);
+}
+
 export function officialUrl(path = "/") {
   return new URL(path, `${OFFICIAL_SITE_URL}/`);
 }
