@@ -96,7 +96,8 @@ export default function CareerCheckLanding() {
             <div className="mt-14 grid gap-5 md:grid-cols-2">
               <article className="rounded-[1.75rem] bg-navy p-7 text-white sm:p-9">
                 <strong className="text-5xl font-black text-gold">5.4%</strong>
-                <p className="mt-4 text-lg font-bold">이직·구직 시 가장 큰 고려 요인으로 ‘장기적 진로설계’를 선택</p>
+                <p className="mt-4 text-lg font-bold">이직·구직 시 ‘장기적 진로설계’를 1순위로 꼽은 비율</p>
+                <p className="mt-3 text-sm leading-6 text-white/75">임금은 57.9%로 가장 높았지만, 장기적 진로설계는 5.4%에 그쳤습니다.</p>
                 <p className="mt-4 text-xs leading-5 text-white/55">2024년 청년의 삶 실태조사 · 만 19~34세 15,098명 · 1순위 응답 · <a href="https://www.opm.go.kr/doc/_attach/file/2025/03/DHqkrnLbagZNXnJoFvkK.hwpx.files/Sections1.html" target="_blank" rel="noreferrer" className="underline underline-offset-2 hover:text-white">공식 자료</a></p>
               </article>
               <article className="rounded-[1.75rem] border border-teal/20 bg-[#eaf5f5] p-7 sm:p-9">
