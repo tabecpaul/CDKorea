@@ -58,7 +58,6 @@ export default function CareerCheckLanding() {
             <Link href="/" className="flex items-center gap-3" aria-label="Career Direct Korea 홈">
               <CareerDirectLogo priority />
             </Link>
-            <a href="#lead-form" className="hidden rounded-full border border-navy/15 bg-white/70 px-5 py-2.5 text-sm font-bold text-navy backdrop-blur transition hover:bg-white sm:block">PDF 무료 받기</a>
           </nav>
 
           <div className="relative mx-auto mt-14 grid max-w-6xl items-center gap-12 lg:mt-20 lg:grid-cols-[1.08fr_.92fr] lg:gap-16">
