@@ -5,6 +5,7 @@ import {
   isOfficialHost,
   isOfficialSitePreview,
   isStartHost,
+  startRootRedirectUrl,
 } from "@/features/site-routing/hosts";
 import {
   isOfficialPublicPath,
@@ -21,6 +22,15 @@ export function proxy(request: NextRequest) {
   if (pathname === "/official" || pathname.startsWith("/official/")) {
     const publicPath = pathname.replace(/^\/official/, "") || "/";
     return NextResponse.redirect(new URL(publicPath, OFFICIAL_SITE_URL), 308);
+  }
+
+  const startRootDestination = startRootRedirectUrl(
+    host,
+    pathname,
+    request.nextUrl.search,
+  );
+  if (startRootDestination) {
+    return NextResponse.redirect(startRootDestination, 308);
   }
 
   if (isOfficialHost(host) || isOfficialSitePreview() || developmentOfficial) {
