@@ -85,6 +85,13 @@
       "when": 1786352664361,
       "tag": "0011_fancy_odin",
       "breakpoints": true
+    },
+    {
+      "idx": 12,
+      "version": "7",
+      "when": 1787104674065,
+      "tag": "0012_secure_public_tables",
+      "breakpoints": true
     }
   ]
 }
