@@ -18,6 +18,31 @@ jobs:
 
       - run: npm ci
 
+      - name: Verify production Supabase project
+        env:
+          DATABASE_URL: ${{ secrets.PRODUCTION_DATABASE_URL }}
+          EXPECTED_SUPABASE_PROJECT_REF: fytkptzbnhfsqsktmzpx
+        run: |
+          node - <<'NODE'
+          const databaseUrl = process.env.DATABASE_URL;
+          const expectedRef = process.env.EXPECTED_SUPABASE_PROJECT_REF;
+
+          if (!databaseUrl) {
+            throw new Error('PRODUCTION_DATABASE_URL is not configured');
+          }
+
+          const parsed = new URL(databaseUrl);
+          const connectionIdentity = `${parsed.username}@${parsed.hostname}`;
+
+          if (!connectionIdentity.includes(expectedRef)) {
+            throw new Error(
+              `Migration target mismatch: expected Supabase project ${expectedRef}`,
+            );
+          }
+
+          console.log(`Verified production Supabase project: ${expectedRef}`);
+          NODE
+
       - name: Apply pending migrations to production
         run: npm run db:migrate --workspace=@newland/db
         env:
