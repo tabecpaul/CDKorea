@@ -414,6 +414,7 @@ export const marketingContentVersions = pgTable(
     naverBody: text("naver_body"),
     metaCaption: text("meta_caption"),
     threadsPosts: jsonb("threads_posts").$type<string[]>(),
+    sourcePackageId: varchar("source_package_id", { length: 180 }),
     driveFolderId: varchar("drive_folder_id", { length: 160 }),
     canvaDesignUrl: text("canva_design_url"),
     approvedSnapshotHash: varchar("approved_snapshot_hash", { length: 64 }),
@@ -423,6 +424,7 @@ export const marketingContentVersions = pgTable(
   },
   (table) => [
     uniqueIndex("marketing_content_versions_content_version_unique").on(table.contentId, table.version),
+    uniqueIndex("marketing_content_versions_source_package_unique").on(table.sourcePackageId).where(sql`${table.sourcePackageId} is not null`),
     index("marketing_content_versions_content_created_idx").on(table.contentId, table.createdAt),
   ],
 );

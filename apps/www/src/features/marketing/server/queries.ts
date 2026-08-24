@@ -169,7 +169,21 @@ export async function getMarketingContent(id: number) {
   const content = await db.select().from(marketingContents).where(eq(marketingContents.id, id)).limit(1);
   if (!content[0]) return null;
   const [versions, schedules] = await Promise.all([
-    db.select().from(marketingContentVersions).where(eq(marketingContentVersions.contentId, id)).orderBy(desc(marketingContentVersions.version)),
+    db.select({
+      id: marketingContentVersions.id,
+      contentId: marketingContentVersions.contentId,
+      version: marketingContentVersions.version,
+      status: marketingContentVersions.status,
+      naverBody: marketingContentVersions.naverBody,
+      metaCaption: marketingContentVersions.metaCaption,
+      threadsPosts: marketingContentVersions.threadsPosts,
+      driveFolderId: marketingContentVersions.driveFolderId,
+      canvaDesignUrl: marketingContentVersions.canvaDesignUrl,
+      approvedSnapshotHash: marketingContentVersions.approvedSnapshotHash,
+      createdBy: marketingContentVersions.createdBy,
+      revisionNote: marketingContentVersions.revisionNote,
+      createdAt: marketingContentVersions.createdAt,
+    }).from(marketingContentVersions).where(eq(marketingContentVersions.contentId, id)).orderBy(desc(marketingContentVersions.version)),
     db.select().from(marketingChannelSchedules).where(eq(marketingChannelSchedules.contentId, id)).orderBy(asc(marketingChannelSchedules.scheduledAt)),
   ]);
   const versionIds = versions.map((version) => version.id);

@@ -18,3 +18,4 @@ export type OperationsSnapshot = { checkedAt: string; issues: OperationsIssue[];
 
 export const monitoredJobNames = ["lead-emails", "callback-reminders", "operations-monitor"] as const;
 export type MonitoredJobName = (typeof monitoredJobNames)[number];
+export type SystemJobName = MonitoredJobName | "marketing-import";

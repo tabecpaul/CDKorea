@@ -1,14 +1,14 @@
 import { and, desc, eq } from "drizzle-orm";
 import { db, systemJobRuns } from "@newland/db";
-import { monitoredJobNames, type MonitoredJobName } from "../domain";
+import { monitoredJobNames, type MonitoredJobName, type SystemJobName } from "../domain";
 import { collectLatestSuccessfulRuns } from "./latestSuccessfulRuns";
 
 function safeErrorCode(value: unknown) {
   return value instanceof Error ? (value.message || value.name).slice(0, 80) : "JOB_FAILED";
 }
 
-export async function startJobRun(jobName: MonitoredJobName) {
-  if (!monitoredJobNames.includes(jobName)) throw new Error("JOB_NAME_INVALID");
+export async function startJobRun(jobName: SystemJobName) {
+  if (![...monitoredJobNames, "marketing-import"].includes(jobName)) throw new Error("JOB_NAME_INVALID");
   const [run] = await db.insert(systemJobRuns).values({ jobName }).returning({ id: systemJobRuns.id });
   return run.id;
 }
