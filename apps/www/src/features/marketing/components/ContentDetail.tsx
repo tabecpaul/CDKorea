@@ -2,6 +2,7 @@ import type { getMarketingContent } from "../server/queries";
 import AssetUploader from "./AssetUploader";
 import ApprovalActions from "./ApprovalActions";
 import AssetPreviewGallery from "./AssetPreviewGallery";
+import MarketingCopyBlock from "./MarketingCopyBlock";
 import NaverPublishingPanel from "./NaverPublishingPanel";
 
 type Detail = NonNullable<Awaited<ReturnType<typeof getMarketingContent>>>;
@@ -33,7 +34,7 @@ export default function ContentDetail({ detail }: { detail: Detail }) {
 
         <AssetUploader contentId={detail.content.id} />
 
-        <section className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6"><h2 className="text-xl font-black">채널 문안</h2><div className="mt-5 space-y-5"><CopyBlock label="네이버 원고" value={currentVersion?.naverBody} /><CopyBlock label="Facebook · Instagram" value={currentVersion?.metaCaption} /><CopyBlock label="Threads" value={currentVersion?.threadsPosts?.join("\n\n") ?? null} /></div></section>
+        <section className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6"><h2 className="text-xl font-black">채널 문안</h2><div className="mt-5 space-y-5"><MarketingCopyBlock label="네이버 원고" value={currentVersion?.naverBody} /><MarketingCopyBlock label="Facebook · Instagram" value={currentVersion?.metaCaption} /><MarketingCopyBlock label="Threads" value={currentVersion?.threadsPosts?.join("\n\n") ?? null} /></div></section>
       </div>
 
       <div className="space-y-6">
@@ -43,8 +44,4 @@ export default function ContentDetail({ detail }: { detail: Detail }) {
       </div>
     </div>
   </>;
-}
-
-function CopyBlock({ label, value }: { label: string; value?: string | null }) {
-  return <div><h3 className="text-sm font-black text-navy/60">{label}</h3><p className="mt-2 max-h-64 overflow-y-auto whitespace-pre-wrap rounded-xl bg-cream p-4 text-sm leading-6">{value || "등록된 문안이 없습니다."}</p></div>;
 }
