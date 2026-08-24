@@ -1,6 +1,7 @@
 import type { getMarketingContent } from "../server/queries";
 import AssetUploader from "./AssetUploader";
 import ApprovalActions from "./ApprovalActions";
+import NaverPublishingPanel from "./NaverPublishingPanel";
 
 type Detail = NonNullable<Awaited<ReturnType<typeof getMarketingContent>>>;
 const channelLabels: Record<string, string> = { naver: "네이버", facebook: "Facebook", instagram: "Instagram", threads: "Threads" };
@@ -13,6 +14,7 @@ export default function ContentDetail({ detail }: { detail: Detail }) {
   const currentVersion = detail.versions.find((version) => version.id === detail.content.currentVersionId) ?? detail.versions[0] ?? null;
   const currentAssets = currentVersion ? detail.assets.filter((asset) => asset.versionId === currentVersion.id) : [];
   const currentApproval = currentVersion ? detail.approvals.find((approval) => approval.versionId === currentVersion.id) : null;
+  const currentNaverSchedule = currentVersion ? detail.schedules.find((schedule) => schedule.versionId === currentVersion.id && schedule.channel === "naver") ?? null : null;
   return <>
     <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
       {[["현재 상태", currentVersion?.status ?? "버전 미등록"], ["현재 버전", currentVersion ? `v${currentVersion.version}` : "—"], ["CTA", detail.content.ctaKind], ["네이버 카테고리", detail.content.naverCategory ?? "미지정"]].map(([label, value]) => <article key={label} className="rounded-2xl border border-navy/10 bg-white p-5"><p className="text-xs font-bold text-navy/50">{label}</p><strong className="mt-2 block break-words">{value}</strong></article>)}
@@ -25,6 +27,8 @@ export default function ContentDetail({ detail }: { detail: Detail }) {
         <section className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6"><h2 className="text-xl font-black">카드뉴스 이미지</h2><p className="mt-1 text-xs text-navy/45">원본 대신 저장된 파일 정보만 표시합니다. 미리보기 URL 연결은 Drive 가져오기 단계에서 추가됩니다.</p><div className="mt-5 grid gap-3 sm:grid-cols-2">{currentAssets.length ? currentAssets.map((asset) => <article key={asset.id} className="rounded-xl border border-navy/10 bg-cream p-4"><p className="text-xs font-black text-gold">{String(asset.position).padStart(2, "0")}</p><p className="mt-2 truncate text-sm font-bold" title={asset.filename}>{asset.filename}</p><p className="mt-2 text-xs text-navy/45">{asset.width}×{asset.height} · {(asset.byteSize / 1024).toFixed(0)}KB</p></article>) : <p className="text-sm text-navy/45">현재 버전에 등록된 이미지가 없습니다.</p>}</div></section>
 
         <ApprovalActions contentId={detail.content.id} enabled={currentVersion?.status === "review_pending"} />
+
+        <NaverPublishingPanel contentId={detail.content.id} version={currentVersion?.version ?? null} versionStatus={currentVersion?.status ?? null} approvedSnapshotHash={currentVersion?.approvedSnapshotHash ?? null} category={detail.content.naverCategory} ctaKind={detail.content.ctaKind} naverBody={currentVersion?.naverBody ?? null} assets={currentAssets} schedule={currentNaverSchedule} />
 
         <AssetUploader contentId={detail.content.id} />
 
