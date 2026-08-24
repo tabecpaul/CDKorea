@@ -42,6 +42,8 @@ test("only Facebook and Instagram reuse cards while Naver and Threads are text-o
   assert.match(source, /usesCards \? <AssetPreviewGallery/);
   assert.match(source, /channel === "naver" \? <NaverPublishingPanel/);
   assert.doesNotMatch(source, /<NaverPublishingPanel[^>]*assets=/s);
+  assert.match(source, /channel !== "naver" \? <section[^>]*>.*MarketingCopyBlock/s);
+  assert.doesNotMatch(source, /channel === "naver" \? <MarketingCopyBlock/);
   assert.doesNotMatch(source, /ApprovalActions|AssetUploader/);
 });
 
