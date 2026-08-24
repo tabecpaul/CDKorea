@@ -6,6 +6,7 @@ import { usePathname } from "next/navigation";
 const sections = [
   { href: "/admin/callbacks", label: "검사 콜백" },
   { href: "/admin/analytics", label: "전환 분석" },
+  { href: "/admin/marketing", label: "콘텐츠 운영" },
 ] as const;
 
 function PendingDot() {
