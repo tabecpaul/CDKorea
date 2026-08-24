@@ -62,3 +62,14 @@ test("production migration workflow rejects a mismatched Supabase target", () =>
   assert.match(migrationWorkflow, /if \(!connectionIdentity\.includes\(expectedRef\)\)/);
   assert.match(migrationWorkflow, /Migration target mismatch/);
 });
+
+test("Drive imports use a globally unique source package id", () => {
+  const schema = readFileSync(new URL("../packages/db/src/schema.ts", import.meta.url), "utf8");
+  const driveMigration = readFileSync(new URL("../packages/db/drizzle/0014_gray_shockwave.sql", import.meta.url), "utf8");
+  assert.match(schema, /sourcePackageId: varchar\("source_package_id"/);
+  assert.match(schema, /marketing_content_versions_source_package_unique/);
+  assert.match(schema, /is not null/);
+  assert.match(driveMigration, /ADD COLUMN "source_package_id" varchar\(180\)/);
+  assert.match(driveMigration, /marketing_content_versions_source_package_unique/);
+  assert.doesNotMatch(driveMigration, /DROP|DISABLE ROW LEVEL SECURITY|GRANT/i);
+});

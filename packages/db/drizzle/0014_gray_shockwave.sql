@@ -1,0 +1,2 @@
+ALTER TABLE "marketing_content_versions" ADD COLUMN "source_package_id" varchar(180);--> statement-breakpoint
+CREATE UNIQUE INDEX "marketing_content_versions_source_package_unique" ON "marketing_content_versions" USING btree ("source_package_id") WHERE "marketing_content_versions"."source_package_id" is not null;
