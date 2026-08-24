@@ -2,12 +2,14 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { ApprovalSnapshot, MarketingChannelState } from "../apps/www/src/features/marketing/domain.ts";
 import {
+  canonicalApprovalSnapshot,
   canCancelChannelApproval,
   canTransitionContent,
   cancellableApprovalChannels,
   requiresReapproval,
   summarizeContentStatus,
 } from "../apps/www/src/features/marketing/stateMachine.ts";
+import { approvalCopyHash, approvalSnapshotHash, buildApprovalSnapshot } from "../apps/www/src/features/marketing/server/approvalSnapshot.ts";
 
 const approvedSnapshot: ApprovalSnapshot = {
   copyHash: "copy-v1",
@@ -39,6 +41,23 @@ test("requires reapproval for copy, image, CTA, UTM, or schedule changes", () =>
   assert.equal(requiresReapproval(approvedSnapshot, { ...approvedSnapshot, ctaKind: "career-check" }), true);
   assert.equal(requiresReapproval(approvedSnapshot, { ...approvedSnapshot, utmUrls: { ...approvedSnapshot.utmUrls, instagram: "https://example.test/instagram-v2" } }), true);
   assert.equal(requiresReapproval(approvedSnapshot, { ...approvedSnapshot, scheduledAt: { ...approvedSnapshot.scheduledAt, instagram: "2026-08-30T02:00:00Z" } }), true);
+});
+
+test("builds deterministic approval snapshot hashes in fixed order", () => {
+  const snapshot = buildApprovalSnapshot({
+    copy: { naverBody: "naver", metaCaption: "meta", threadsPosts: ["one", "two"] },
+    assetHashes: ["slide-01", "slide-02"],
+    ctaKind: "career-check",
+    schedules: [
+      { channel: "threads", utmUrl: "https://example.test/threads", scheduledAt: new Date("2026-08-27T12:00:00Z") },
+      { channel: "naver", utmUrl: "https://example.test/naver", scheduledAt: new Date("2026-08-26T23:00:00Z") },
+    ],
+  });
+  assert.equal(snapshot.copyHash, approvalCopyHash({ naverBody: "naver", metaCaption: "meta", threadsPosts: ["one", "two"] }));
+  assert.match(approvalSnapshotHash(snapshot), /^[0-9a-f]{64}$/);
+  assert.equal(approvalSnapshotHash(snapshot), approvalSnapshotHash({ ...snapshot }));
+  assert.equal(canonicalApprovalSnapshot(snapshot), canonicalApprovalSnapshot({ ...snapshot }));
+  assert.notEqual(approvalSnapshotHash(snapshot), approvalSnapshotHash({ ...snapshot, assetHashes: ["slide-02", "slide-01"] }));
 });
 
 test("keeps partial publication scheduled and completes after Naver manual publication", () => {
