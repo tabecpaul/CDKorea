@@ -14,15 +14,19 @@ export const metadata: Metadata = { title: "검사 콜백 관리 | Career Direct
 const operationLabels = { real: "실제 고객", test: "테스트", overdue: "입금기한 초과", email_failed: "이메일 실패", evidence_needed: "증빙 필요", refund_pending: "환불 대기" } as const;
 const SERVER_LOADED_AT = Date.now();
 
-export default async function AdminCallbacksPage({ searchParams }: { searchParams: Promise<{ status?: string; operation?: string }> }) {
+export default async function AdminCallbacksPage({ searchParams }: { searchParams: Promise<{ status?: string; operation?: string; cursor?: string }> }) {
   if (!(await hasAdminSession())) redirect("/admin/login");
   const query = await searchParams;
-  const [requests, operationsStatus] = await Promise.all([listCallbackRequests(query.status, query.operation), getOperationsAdminStatus()]);
+  const [callbackPage, operationsStatus] = await Promise.all([listCallbackRequests(query.status, query.operation, query.cursor), getOperationsAdminStatus()]);
+  const requests = callbackPage.items;
   const newCount = requests.filter((request) => request.status === "new").length;
-  const href = (status?: string, operation?: string) => `/admin/callbacks?${new URLSearchParams({ ...(status ? { status } : {}), ...(operation ? { operation } : {}) })}`;
+  const href = (status?: string, operation?: string) => {
+    const params = new URLSearchParams({ ...(status ? { status } : {}), ...(operation ? { operation } : {}) });
+    return params.size ? `/admin/callbacks?${params}` : "/admin/callbacks";
+  };
 
   return <main className="min-h-screen bg-cream px-5 py-10 text-navy sm:px-8 sm:py-14"><div className="mx-auto max-w-7xl">
-    <header><div><p className="text-xs font-black tracking-[.16em] text-teal">CAREER DIRECT KOREA</p><h1 className="mt-2 text-3xl font-black sm:text-4xl">검사 콜백 관리</h1><p className="mt-2 text-sm text-navy/55">현재 조건 신규 신청 {newCount}건 · 최근 100건</p></div></header>
+    <header><div><p className="text-xs font-black tracking-[.16em] text-teal">CAREER DIRECT KOREA</p><h1 className="mt-2 text-3xl font-black sm:text-4xl">검사 콜백 관리</h1><p className="mt-2 text-sm text-navy/55">현재 페이지 신규 신청 {newCount}건 · 페이지당 최대 30건</p></div></header>
     <OperationsStatusPanel snapshot={operationsStatus.snapshot} latestStatus={operationsStatus.latestStatus} latestSuccessAt={operationsStatus.latestSuccessAt} stale={operationsStatus.stale} />
     <p className="mt-7 text-xs font-black tracking-[.12em] text-navy/45">영업 상태</p>
     <nav className="mt-2 flex flex-wrap gap-2"><Link href={href(undefined, query.operation)} className={`rounded-full px-4 py-2 text-sm font-bold ${!query.status ? "bg-navy text-white" : "bg-white"}`}>전체</Link>{callbackStatuses.map((status) => <Link key={status} href={href(status, query.operation)} className={`rounded-full px-4 py-2 text-sm font-bold ${query.status === status ? "bg-navy text-white" : "bg-white"}`}>{callbackStatusLabels[status]}</Link>)}</nav>
@@ -48,5 +52,9 @@ export default async function AdminCallbacksPage({ searchParams }: { searchParam
         <td className="px-3 py-4"><span className="whitespace-nowrap rounded-full bg-navy/5 px-3 py-1.5 text-xs font-bold">{callbackStatusLabels[request.status as keyof typeof callbackStatusLabels] ?? request.status}</span></td>
       </tr>;
     }) : <tr><td colSpan={11} className="px-5 py-16 text-center text-navy/45">조건에 맞는 콜백 신청이 없습니다.</td></tr>}</tbody></table></section>
+    <nav className="mt-5 flex items-center justify-end gap-3" aria-label="콜백 목록 페이지">
+      {query.cursor ? <Link href={href(query.status, query.operation)} className="rounded-full border border-navy/10 bg-white px-4 py-2 text-sm font-bold">첫 페이지</Link> : null}
+      {callbackPage.nextCursor ? <Link href={`${href(query.status, query.operation)}${href(query.status, query.operation).includes("?") ? "&" : "?"}cursor=${encodeURIComponent(callbackPage.nextCursor)}`} className="rounded-full bg-navy px-4 py-2 text-sm font-bold text-white">다음 30건 →</Link> : null}
+    </nav>
   </div></main>;
 }

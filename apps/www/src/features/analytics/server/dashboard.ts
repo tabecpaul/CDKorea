@@ -1,5 +1,6 @@
 import { sql } from "drizzle-orm";
 import { db } from "@newland/db";
+import { unstable_cache } from "next/cache";
 
 export type DashboardPeriod = 7 | 30 | 90;
 
@@ -31,7 +32,7 @@ function numeric<T extends Record<string, unknown>>(row: T) {
   return Object.fromEntries(Object.entries(row).map(([key, value]) => [key, typeof value === "string" && /^\d+$/.test(value) ? Number(value) : value])) as T;
 }
 
-export async function getAnalyticsDashboard(period: DashboardPeriod) {
+async function queryAnalyticsDashboard(period: DashboardPeriod) {
   const start = kstStart(period);
   // Raw postgres.js queries do not serialize Date instances in every runtime.
   // Pass an ISO string and cast it explicitly so Vercel and local builds behave alike.
@@ -146,3 +147,9 @@ export async function getAnalyticsDashboard(period: DashboardPeriod) {
     utm: utmResult.map((row) => numeric(row as UtmRow)),
   };
 }
+
+export const getAnalyticsDashboard = unstable_cache(
+  queryAnalyticsDashboard,
+  ["admin-analytics-dashboard"],
+  { revalidate: 30, tags: ["admin-analytics-dashboard"] },
+);
