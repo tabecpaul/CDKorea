@@ -5,6 +5,7 @@ export const officialPublicPaths = [
   "/consulting",
   "/organizations",
   "/consultant",
+  "/blog/gifts-talents-strengths",
 ] as const;
 
 export const startOwnedPrefixes = [

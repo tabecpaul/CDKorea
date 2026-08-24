@@ -12,6 +12,12 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: "monthly" as const,
       priority: 0.85,
     })),
+    {
+      url: `${officialUrl}/blog/gifts-talents-strengths`,
+      lastModified: new Date("2026-08-27"),
+      changeFrequency: "monthly",
+      priority: 0.8,
+    },
     { url: siteUrl, lastModified, changeFrequency: "monthly", priority: 0.8 },
     { url: `${siteUrl}/career-check`, lastModified, changeFrequency: "monthly", priority: 0.95 },
     { url: `${siteUrl}/assessment-consultation`, lastModified, changeFrequency: "monthly", priority: 0.9 },
