@@ -30,7 +30,7 @@ export default function ContentDetail({ detail }: { detail: Detail }) {
 
         <ApprovalActions contentId={detail.content.id} enabled={currentVersion?.status === "review_pending"} />
 
-        <NaverPublishingPanel contentId={detail.content.id} version={currentVersion?.version ?? null} versionStatus={currentVersion?.status ?? null} approvedSnapshotHash={currentVersion?.approvedSnapshotHash ?? null} category={detail.content.naverCategory} ctaKind={detail.content.ctaKind} naverBody={currentVersion?.naverBody ?? null} assets={currentAssets} schedule={currentNaverSchedule} />
+        <NaverPublishingPanel contentId={detail.content.id} version={currentVersion?.version ?? null} versionStatus={currentVersion?.status ?? null} approvedSnapshotHash={currentVersion?.approvedSnapshotHash ?? null} category={detail.content.naverCategory} ctaKind={detail.content.ctaKind} naverBody={currentVersion?.naverBody ?? null} schedule={currentNaverSchedule} />
 
         <AssetUploader contentId={detail.content.id} />
 

@@ -34,12 +34,14 @@ test("calendar preserves channel and schedule while direct content links stay un
   assert.match(list, /href=\{`\/admin\/marketing\/\$\{item\.id\}`\}/);
 });
 
-test("Threads channel branch is text-only while image channels reuse the gallery", () => {
+test("only Facebook and Instagram reuse cards while Naver and Threads are text-only", () => {
   const source = readFileSync(new URL("../apps/www/src/features/marketing/components/ChannelContentDetail.tsx", import.meta.url), "utf8");
-  assert.match(source, /const usesCards = channel !== "threads"/);
+  assert.match(source, /const usesCards = channel === "facebook" \|\| channel === "instagram"/);
+  assert.match(source, /네이버 블로그는 장문 원고와 글 하단 CTA 링크로 수동 발행합니다/);
   assert.match(source, /Threads는 현재 이미지 없이 문안으로 발행합니다/);
   assert.match(source, /usesCards \? <AssetPreviewGallery/);
   assert.match(source, /channel === "naver" \? <NaverPublishingPanel/);
+  assert.doesNotMatch(source, /<NaverPublishingPanel[^>]*assets=/s);
   assert.doesNotMatch(source, /ApprovalActions|AssetUploader/);
 });
 

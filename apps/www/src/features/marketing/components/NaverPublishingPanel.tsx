@@ -3,7 +3,6 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
-type Asset = { id: number; position: number; filename: string; width: number; height: number; byteSize: number };
 type Schedule = { id: number; mode: string; status: string; scheduledAt: Date; utmUrl: string; publishedUrl: string | null; publishedAt: Date | null };
 
 export default function NaverPublishingPanel({
@@ -14,7 +13,6 @@ export default function NaverPublishingPanel({
   category,
   ctaKind,
   naverBody,
-  assets,
   schedule,
 }: {
   contentId: number;
@@ -24,7 +22,6 @@ export default function NaverPublishingPanel({
   category: string | null;
   ctaKind: string;
   naverBody: string | null;
-  assets: Asset[];
   schedule: Schedule | null;
 }) {
   const router = useRouter();
@@ -71,8 +68,6 @@ export default function NaverPublishingPanel({
     </dl>
 
     <div className="mt-5"><h3 className="text-sm font-black text-navy/60">네이버 원고</h3><p className="mt-2 max-h-72 overflow-y-auto whitespace-pre-wrap rounded-xl bg-cream p-4 text-sm leading-6">{naverBody || "등록된 네이버 원고가 없습니다."}</p></div>
-    <div className="mt-5"><h3 className="text-sm font-black text-navy/60">카드뉴스 순서</h3><div className="mt-2 grid gap-2 sm:grid-cols-2">{assets.length ? assets.map((asset) => <div key={asset.id} className="rounded-xl border border-navy/10 p-3 text-sm"><strong className="text-gold">{String(asset.position).padStart(2, "0")}</strong><span className="ml-2 font-bold">{asset.filename}</span><p className="mt-1 text-xs text-navy/45">{asset.width}×{asset.height} · {(asset.byteSize / 1024).toFixed(0)}KB</p></div>) : <p className="text-sm text-navy/45">등록된 카드뉴스가 없습니다.</p>}</div></div>
-
     {completed && schedule?.publishedUrl && schedule.publishedAt ? <div className="mt-6 rounded-xl bg-teal/[.07] p-4"><p className="font-bold text-teal">수동 발행 완료</p><a href={schedule.publishedUrl} target="_blank" rel="noreferrer" className="mt-2 block break-all text-sm font-bold text-teal underline">게시물 열기 ↗</a><p className="mt-2 text-xs text-navy/50">{schedule.publishedAt.toLocaleString("ko-KR", { timeZone: "Asia/Seoul" })}</p></div> : <>
       <div className="mt-6 space-y-3">
         <Check checked={ctaLinked} onChange={setCtaLinked}>CTA 문구에 링크를 직접 연결했습니다.</Check>

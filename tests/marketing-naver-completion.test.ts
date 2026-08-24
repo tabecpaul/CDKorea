@@ -32,11 +32,14 @@ test("Naver completion service updates only the matching Naver schedule and writ
 
 test("Naver panel requires both confirmations and exposes the approved publishing material", () => {
   const source = readFileSync(new URL("../apps/www/src/features/marketing/components/NaverPublishingPanel.tsx", import.meta.url), "utf8");
+  const overview = readFileSync(new URL("../apps/www/src/features/marketing/components/ContentDetail.tsx", import.meta.url), "utf8");
   assert.match(source, /CTA 문구에 링크를 직접 연결했습니다/);
   assert.match(source, /모바일에서 신청 화면이 정상적으로 열리는지 확인했습니다/);
   assert.match(source, /네이버 게시 URL/);
   assert.match(source, /수동 발행 완료/);
   assert.match(source, /ctaLinked && mobileChecked && publishedUrl/);
+  assert.doesNotMatch(source, /type Asset|assets: Asset\[\]|카드뉴스 순서/);
+  assert.doesNotMatch(overview, /<NaverPublishingPanel[^>]*assets=/s);
 });
 
 test("admin route keeps authentication and delegates only a validated request", () => {
