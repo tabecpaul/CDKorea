@@ -16,16 +16,16 @@
 **파일**
 
 - `context/marketing-dashboard-production-readiness.md`
-- `.env.example`
+- `apps/www/.env.example`
 
 **작업**
 
 1. Vercel Production이 `fytkptzbnhfsqsktmzpx`를 가리키는지 비밀값을 출력하지 않고 확인한다.
 2. GitHub `PRODUCTION_DATABASE_URL`의 프로젝트 ref를 다시 확인한다.
-3. 현재 Vercel 요금제에서 1분 간격 예약 실행이 가능한지 확인한다.
+3. 현재 Vercel 요금제에서 1분 간격 예약 실행이 가능한지 확인하고, 불가능하면 기존 Supabase `pg_cron` 호출 구조를 사용한다.
 4. Meta 앱, Facebook 페이지, Instagram 프로페셔널 계정과 Threads 프로필의 연결 상태를 읽기 전용으로 확인한다.
 5. 필요한 게시 권한과 토큰 수명, 앱 검수 필요 여부를 공식 문서와 실제 계정 상태로 기록한다.
-6. 환경변수 이름만 `.env.example`에 추가한다. 실제 값은 저장소에 넣지 않는다.
+6. 환경변수 이름만 `apps/www/.env.example`에 추가한다. 실제 값은 저장소에 넣지 않는다.
 
 **환경변수 후보**
 
