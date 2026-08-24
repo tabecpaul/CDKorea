@@ -1,4 +1,5 @@
 import {
+  type AnyPgColumn,
   boolean,
   date,
   index,
@@ -381,5 +382,171 @@ export const operationsAlertDeliveries = pgTable(
   (table) => [
     uniqueIndex("operations_alert_date_fingerprint_unique").on(table.alertDate, table.fingerprint),
     index("operations_alert_status_created_idx").on(table.status, table.createdAt),
+  ],
+);
+
+export const marketingContents = pgTable(
+  "marketing_contents",
+  {
+    id: serial("id").primaryKey(),
+    slug: varchar("slug", { length: 160 }).notNull(),
+    title: varchar("title", { length: 240 }).notNull(),
+    campaignKey: varchar("campaign_key", { length: 120 }).notNull(),
+    ctaKind: varchar("cta_kind", { length: 40 }).notNull(),
+    naverCategory: varchar("naver_category", { length: 80 }),
+    currentVersionId: integer("current_version_id").references((): AnyPgColumn => marketingContentVersions.id, { onDelete: "set null" }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("marketing_contents_slug_unique").on(table.slug),
+    index("marketing_contents_campaign_updated_idx").on(table.campaignKey, table.updatedAt),
+  ],
+);
+
+export const marketingContentVersions = pgTable(
+  "marketing_content_versions",
+  {
+    id: serial("id").primaryKey(),
+    contentId: integer("content_id").notNull().references(() => marketingContents.id, { onDelete: "cascade" }),
+    version: integer("version").notNull(),
+    status: varchar("status", { length: 32 }).notNull().default("proposal"),
+    naverBody: text("naver_body"),
+    metaCaption: text("meta_caption"),
+    threadsPosts: jsonb("threads_posts").$type<string[]>(),
+    driveFolderId: varchar("drive_folder_id", { length: 160 }),
+    canvaDesignUrl: text("canva_design_url"),
+    approvedSnapshotHash: varchar("approved_snapshot_hash", { length: 64 }),
+    createdBy: varchar("created_by", { length: 40 }).notNull(),
+    revisionNote: varchar("revision_note", { length: 1000 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("marketing_content_versions_content_version_unique").on(table.contentId, table.version),
+    index("marketing_content_versions_content_created_idx").on(table.contentId, table.createdAt),
+  ],
+);
+
+export const marketingContentAssets = pgTable(
+  "marketing_content_assets",
+  {
+    id: serial("id").primaryKey(),
+    versionId: integer("version_id").notNull().references(() => marketingContentVersions.id, { onDelete: "cascade" }),
+    position: integer("position").notNull(),
+    driveFileId: varchar("drive_file_id", { length: 160 }).notNull(),
+    filename: varchar("filename", { length: 240 }).notNull(),
+    mimeType: varchar("mime_type", { length: 100 }).notNull(),
+    byteSize: integer("byte_size").notNull(),
+    sha256: varchar("sha256", { length: 64 }).notNull(),
+    width: integer("width").notNull(),
+    height: integer("height").notNull(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("marketing_content_assets_version_position_unique").on(table.versionId, table.position),
+    uniqueIndex("marketing_content_assets_version_drive_file_unique").on(table.versionId, table.driveFileId),
+  ],
+);
+
+export const marketingChannelSchedules = pgTable(
+  "marketing_channel_schedules",
+  {
+    id: serial("id").primaryKey(),
+    contentId: integer("content_id").notNull().references(() => marketingContents.id, { onDelete: "cascade" }),
+    versionId: integer("version_id").notNull().references(() => marketingContentVersions.id, { onDelete: "cascade" }),
+    channel: varchar("channel", { length: 24 }).notNull(),
+    scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
+    mode: varchar("mode", { length: 16 }).notNull(),
+    utmUrl: text("utm_url").notNull(),
+    status: varchar("status", { length: 32 }).notNull().default("approval_pending"),
+    publishedPostId: varchar("published_post_id", { length: 200 }),
+    publishedUrl: text("published_url"),
+    publishedAt: timestamp("published_at", { withTimezone: true }),
+    lastErrorCode: varchar("last_error_code", { length: 100 }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("marketing_channel_schedules_version_channel_unique").on(table.versionId, table.channel),
+    index("marketing_channel_schedules_status_scheduled_idx").on(table.status, table.scheduledAt),
+    index("marketing_channel_schedules_content_created_idx").on(table.contentId, table.createdAt),
+  ],
+);
+
+export const marketingApprovals = pgTable(
+  "marketing_approvals",
+  {
+    id: serial("id").primaryKey(),
+    versionId: integer("version_id").notNull().references(() => marketingContentVersions.id, { onDelete: "cascade" }),
+    status: varchar("status", { length: 24 }).notNull().default("pending"),
+    snapshotHash: varchar("snapshot_hash", { length: 64 }).notNull(),
+    approvedBy: varchar("approved_by", { length: 80 }),
+    approvedAt: timestamp("approved_at", { withTimezone: true }),
+    cancelledAt: timestamp("cancelled_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("marketing_approvals_version_created_idx").on(table.versionId, table.createdAt),
+    index("marketing_approvals_status_created_idx").on(table.status, table.createdAt),
+  ],
+);
+
+export const marketingPublishAttempts = pgTable(
+  "marketing_publish_attempts",
+  {
+    id: serial("id").primaryKey(),
+    scheduleId: integer("schedule_id").notNull().references(() => marketingChannelSchedules.id, { onDelete: "cascade" }),
+    publishKey: varchar("publish_key", { length: 180 }).notNull(),
+    attemptNumber: integer("attempt_number").notNull(),
+    status: varchar("status", { length: 24 }).notNull().default("started"),
+    errorCode: varchar("error_code", { length: 100 }),
+    responseMetadata: jsonb("response_metadata").$type<Record<string, string | number | boolean | null>>(),
+    platformPostId: varchar("platform_post_id", { length: 200 }),
+    publishedUrl: text("published_url"),
+    startedAt: timestamp("started_at", { withTimezone: true }).notNull().defaultNow(),
+    completedAt: timestamp("completed_at", { withTimezone: true }),
+  },
+  (table) => [
+    uniqueIndex("marketing_publish_attempts_publish_key_unique").on(table.publishKey),
+    uniqueIndex("marketing_publish_attempts_schedule_attempt_unique").on(table.scheduleId, table.attemptNumber),
+    index("marketing_publish_attempts_schedule_started_idx").on(table.scheduleId, table.startedAt),
+  ],
+);
+
+export const marketingConnections = pgTable(
+  "marketing_connections",
+  {
+    id: serial("id").primaryKey(),
+    channel: varchar("channel", { length: 24 }).notNull(),
+    accountId: varchar("account_id", { length: 200 }).notNull(),
+    accountName: varchar("account_name", { length: 200 }).notNull(),
+    status: varchar("status", { length: 32 }).notNull().default("unverified"),
+    permissions: jsonb("permissions").$type<string[]>(),
+    tokenExpiresAt: timestamp("token_expires_at", { withTimezone: true }),
+    checkedAt: timestamp("checked_at", { withTimezone: true }),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+    updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    uniqueIndex("marketing_connections_channel_account_unique").on(table.channel, table.accountId),
+    index("marketing_connections_status_checked_idx").on(table.status, table.checkedAt),
+  ],
+);
+
+export const marketingAuditLogs = pgTable(
+  "marketing_audit_logs",
+  {
+    id: serial("id").primaryKey(),
+    contentId: integer("content_id").references(() => marketingContents.id, { onDelete: "set null" }),
+    versionId: integer("version_id").references(() => marketingContentVersions.id, { onDelete: "set null" }),
+    scheduleId: integer("schedule_id").references(() => marketingChannelSchedules.id, { onDelete: "set null" }),
+    actor: varchar("actor", { length: 80 }).notNull(),
+    action: varchar("action", { length: 80 }).notNull(),
+    details: jsonb("details").$type<Record<string, string | number | boolean | null>>(),
+    createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("marketing_audit_logs_content_created_idx").on(table.contentId, table.createdAt),
+    index("marketing_audit_logs_action_created_idx").on(table.action, table.createdAt),
   ],
 );
