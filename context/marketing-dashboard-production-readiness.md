@@ -22,7 +22,7 @@
 | Meta Business Suite | 확인 | `Career Direct Korea` 비즈니스 포트폴리오(`800101298797079`)에 로그인해 자산 설정을 읽기 전용으로 확인 | 유지 |
 | Facebook 페이지 | 자산 확인 | `Career Direct Korea` 페이지가 포트폴리오에 등록되어 있고 Business Suite 홈의 선택 자산 ID는 `349780465111238` | 운영 앱 연결 후 Page ID·게시 권한·장기 토큰을 API로 재확인 |
 | Instagram | 자산 연결 확인 | `@careerdirect_korea`(ID `17841464454112500`)가 포트폴리오 소유 자산으로 등록되고 `Career Direct Korea` Facebook 페이지에 연결됨. 기존 `로그인 필요` 표시는 해소됨 | 운영 앱 연결 후 Professional 계정 유형과 게시 권한을 API로 재확인 |
-| Threads | 계정 불일치 | `@tabecpaul`(ID `4407066156220865`)이 추가됐지만 Meta가 포트폴리오의 Instagram `@careerdirect_korea`와 일치하지 않는다고 경고 | 자동 발행 대상이 개인 `@tabecpaul`인지 브랜드 Threads인지 사용자 확인 후 올바른 계정으로 정비 |
+| Threads | 보류 | 자동 발행 대상은 별도 브랜드 `@careerdirect_korea`로 확정. 개인 `@tabecpaul` 연결은 제거됐으며, Meta 계정 복구 오류로 브랜드 계정의 Portfolio 추가를 중단함 | 개인 Facebook/광고관리자 계정 문제가 해결된 뒤 브랜드 Threads 연결 재시도 |
 | Meta 운영 앱 | 미연결 | Business Suite의 앱 화면에 `추가된 앱 없음` 표시 | 게시 API용 앱 설계·생성·비즈니스 연결·앱 검수 범위를 별도 승인 후 진행 |
 | Google Drive 운영 폴더 | 미확인 | 아직 폴더 ID와 서비스 계정 접근을 검증하지 않음 | 업로드 구현 전 읽기/쓰기 최소 권한 확인 |
 

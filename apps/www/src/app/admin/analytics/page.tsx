@@ -3,7 +3,6 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { hasAdminSession } from "@/features/admin/server/auth";
 import { getAnalyticsDashboard, parsePeriod } from "@/features/analytics/server/dashboard";
-import LogoutButton from "./LogoutButton";
 
 export const metadata: Metadata = { title: "전환 분석 | Career Direct Korea", robots: { index: false, follow: false } };
 
@@ -33,7 +32,6 @@ export default async function AnalyticsPage({ searchParams }: { searchParams: Pr
       <div className="mx-auto max-w-6xl">
         <header className="flex flex-col gap-5 sm:flex-row sm:items-end sm:justify-between">
           <div><p className="text-xs font-black tracking-[.16em] text-teal">CAREER DIRECT KOREA</p><h1 className="mt-2 text-3xl font-black sm:text-4xl">전환 분석</h1><p className="mt-2 text-sm text-navy/55">{data.start.toLocaleDateString("ko-KR", { timeZone: "Asia/Seoul" })} 이후 집계 · 개인정보 미표시 · 연결된 테스트 데이터 제외</p></div>
-          <div className="flex items-center gap-4"><Link href="/admin/callbacks" className="text-sm font-bold text-teal underline">검사 콜백 관리</Link><LogoutButton /></div>
         </header>
         <nav className="mt-8 flex gap-2" aria-label="조회 기간">
           {[7, 30, 90].map((days) => <Link key={days} href={`/admin/analytics?period=${days}`} className={`rounded-full px-4 py-2 text-sm font-bold ${period === days ? "bg-navy text-white" : "border border-navy/10 bg-white text-navy"}`}>최근 {days}일</Link>)}
