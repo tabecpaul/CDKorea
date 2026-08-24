@@ -4,7 +4,7 @@
 
 ## 결론
 
-마케팅 대시보드의 UI와 내부 상태 관리는 다음 단계부터 구현할 수 있다. 다만 Meta 자동 발행은 아직 **차단 상태**다. Meta Business Suite에서 Facebook 페이지는 확인됐지만 Instagram은 재로그인이 필요하고 Threads 계정과 운영 앱은 추가되지 않았다. 실제 앱 권한과 읽기 전용 API 호출까지 확인하기 전에는 어떤 채널도 `MARKETING_AUTOPUBLISH_CHANNELS`에 추가하지 않는다.
+마케팅 대시보드의 UI와 내부 상태 관리는 다음 단계부터 구현할 수 있다. 다만 Meta 자동 발행은 아직 **차단 상태**다. Facebook 페이지와 Instagram 운영 계정의 연결은 확인됐지만, 추가된 Threads 계정은 운영 Instagram과 이름이 일치하지 않으며 운영 앱도 아직 추가되지 않았다. 실제 앱 권한과 읽기 전용 API 호출까지 확인하기 전에는 어떤 채널도 `MARKETING_AUTOPUBLISH_CHANNELS`에 추가하지 않는다.
 
 예약 발행 큐는 Vercel Cron이 아니라 기존 Supabase `pg_cron` + `pg_net` 호출 구조를 재사용한다. 현재 Vercel 팀은 Hobby 플랜이며, Vercel 공식 문서상 Hobby Cron은 하루 한 번만 실행할 수 있고 지정한 시간의 해당 시각(hour) 안에서 호출될 수 있어 분 단위 발행 큐에 부적합하다.
 
@@ -21,8 +21,8 @@
 | Vercel 예약 실행 | 부적합 | 팀 플랜 `Hobby`; 공식 문서상 Cron은 하루 1회 제한 및 지정 hour 내 실행 | Supabase `pg_cron` 사용 |
 | Meta Business Suite | 확인 | `Career Direct Korea` 비즈니스 포트폴리오(`800101298797079`)에 로그인해 자산 설정을 읽기 전용으로 확인 | 유지 |
 | Facebook 페이지 | 자산 확인 | `Career Direct Korea` 페이지가 포트폴리오에 등록되어 있고 Business Suite 홈의 선택 자산 ID는 `349780465111238` | 운영 앱 연결 후 Page ID·게시 권한·장기 토큰을 API로 재확인 |
-| Instagram | 조치 필요 | `@careerdirect_korea`가 포트폴리오에 등록되어 있으나 상태가 `로그인 필요` | Instagram 재로그인 후 Professional 계정·Facebook Page 연결 및 게시 권한 확인 |
-| Threads | 미연결 | Business Suite의 Threads 계정 화면에 `No Threads Accounts Added` 표시 | 운영 Threads 계정을 포트폴리오에 추가한 뒤 사용자 ID·권한·토큰 확인 |
+| Instagram | 자산 연결 확인 | `@careerdirect_korea`(ID `17841464454112500`)가 포트폴리오 소유 자산으로 등록되고 `Career Direct Korea` Facebook 페이지에 연결됨. 기존 `로그인 필요` 표시는 해소됨 | 운영 앱 연결 후 Professional 계정 유형과 게시 권한을 API로 재확인 |
+| Threads | 계정 불일치 | `@tabecpaul`(ID `4407066156220865`)이 추가됐지만 Meta가 포트폴리오의 Instagram `@careerdirect_korea`와 일치하지 않는다고 경고 | 자동 발행 대상이 개인 `@tabecpaul`인지 브랜드 Threads인지 사용자 확인 후 올바른 계정으로 정비 |
 | Meta 운영 앱 | 미연결 | Business Suite의 앱 화면에 `추가된 앱 없음` 표시 | 게시 API용 앱 설계·생성·비즈니스 연결·앱 검수 범위를 별도 승인 후 진행 |
 | Google Drive 운영 폴더 | 미확인 | 아직 폴더 ID와 서비스 계정 접근을 검증하지 않음 | 업로드 구현 전 읽기/쓰기 최소 권한 확인 |
 
