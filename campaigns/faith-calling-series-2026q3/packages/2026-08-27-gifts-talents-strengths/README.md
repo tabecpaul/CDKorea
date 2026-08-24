@@ -2,7 +2,11 @@
 
 ## 상태
 
-로컬 사전검증 및 관리자 디자인 승인 완료. Drive 파일 ID가 아직 없으므로 최종 `content-package.json`은 만들지 않았습니다.
+로컬 사전검증, 관리자 디자인 승인, Production 공식 글 확인과 Drive 패키지 수동 가져오기를 완료했습니다. 대시보드 상태는 `review_pending`이며 자동 승인과 자동 게시를 사용하지 않습니다.
+
+- 실제 Drive 폴더·파일 ID가 포함된 manifest는 비공개 Drive 패키지 폴더에만 보관
+- 대시보드 상태: `review_pending`, v1
+- 중복 검증: 동일 manifest 재가져오기 거부 확인
 
 ## 파일 구성
 
