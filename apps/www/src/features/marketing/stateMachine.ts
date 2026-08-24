@@ -31,7 +31,7 @@ function orderedChannelValues(values: Readonly<Partial<Record<MarketingChannel, 
   return marketingChannels.map((channel) => [channel, values[channel] ?? null] as const);
 }
 
-function canonicalSnapshot(snapshot: ApprovalSnapshot) {
+export function canonicalApprovalSnapshot(snapshot: ApprovalSnapshot) {
   return JSON.stringify({
     copyHash: snapshot.copyHash,
     assetHashes: [...snapshot.assetHashes],
@@ -42,7 +42,7 @@ function canonicalSnapshot(snapshot: ApprovalSnapshot) {
 }
 
 export function requiresReapproval(previous: ApprovalSnapshot, next: ApprovalSnapshot) {
-  return canonicalSnapshot(previous) !== canonicalSnapshot(next);
+  return canonicalApprovalSnapshot(previous) !== canonicalApprovalSnapshot(next);
 }
 
 const publishedChannelStatuses = new Set<MarketingChannelStatus>(["published", "manual_published"]);
