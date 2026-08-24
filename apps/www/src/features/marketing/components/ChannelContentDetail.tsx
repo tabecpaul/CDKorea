@@ -22,7 +22,7 @@ export default function ChannelContentDetail({ detail, channel, schedule }: { de
 
     {usesCards ? <AssetPreviewGallery contentId={detail.content.id} version={currentVersion.version} assets={currentAssets} /> : <section className="rounded-2xl border border-teal/20 bg-teal/[.06] p-5 text-sm font-bold text-teal sm:p-6">{channel === "naver" ? "네이버 블로그는 장문 원고와 글 하단 CTA 링크로 수동 발행합니다. 카드뉴스는 사용하지 않습니다." : "Threads는 현재 이미지 없이 문안으로 발행합니다."}</section>}
 
-    <section className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6"><h2 className="text-xl font-black">{channelLabels[channel]} 문안</h2><div className="mt-5">{channel === "naver" ? <MarketingCopyBlock label="네이버 원고" value={currentVersion.naverBody} /> : channel === "threads" ? <MarketingCopyBlock label="Threads" value={currentVersion.threadsPosts?.join("\n\n") ?? null} /> : <MarketingCopyBlock label="Facebook · Instagram" value={currentVersion.metaCaption} />}</div></section>
+    {channel !== "naver" ? <section className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6"><h2 className="text-xl font-black">{channelLabels[channel]} 문안</h2><div className="mt-5">{channel === "threads" ? <MarketingCopyBlock label="Threads" value={currentVersion.threadsPosts?.join("\n\n") ?? null} /> : <MarketingCopyBlock label="Facebook · Instagram" value={currentVersion.metaCaption} />}</div></section> : null}
 
     {channel === "naver" ? <NaverPublishingPanel contentId={detail.content.id} version={currentVersion.version} versionStatus={currentVersion.status} approvedSnapshotHash={currentVersion.approvedSnapshotHash} category={detail.content.naverCategory} ctaKind={detail.content.ctaKind} naverBody={currentVersion.naverBody} schedule={schedule} /> : null}
   </div>;
