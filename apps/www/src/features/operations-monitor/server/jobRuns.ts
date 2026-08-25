@@ -8,9 +8,17 @@ function safeErrorCode(value: unknown) {
 }
 
 export async function startJobRun(jobName: SystemJobName) {
-  if (![...monitoredJobNames, "marketing-import"].includes(jobName)) throw new Error("JOB_NAME_INVALID");
+  if (![...monitoredJobNames, "marketing-import", "marketing-reconciliation"].includes(jobName)) throw new Error("JOB_NAME_INVALID");
   const [run] = await db.insert(systemJobRuns).values({ jobName }).returning({ id: systemJobRuns.id });
   return run.id;
+}
+
+export async function hasSentMarketingReconciliation(weekStart: string) {
+  const runs = await db.select({ summary: systemJobRuns.summary }).from(systemJobRuns)
+    .where(and(eq(systemJobRuns.jobName, "marketing-reconciliation"), eq(systemJobRuns.status, "succeeded")))
+    .orderBy(desc(systemJobRuns.completedAt))
+    .limit(20);
+  return runs.some((run) => run.summary?.weekStart === weekStart && run.summary.notified === "yes");
 }
 
 export async function completeJobRun(id: number, summary: Record<string, number | string | null> = {}) {

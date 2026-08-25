@@ -24,7 +24,7 @@ function fakeDrive(outside = new Set<string>()): MarketingDriveClient {
     async metadata(id): Promise<DriveFileMeta> { return { id, name: imageIds.includes(id) ? `${id}.png` : `${id}.txt`, mimeType: imageIds.includes(id) ? "image/png" : id === "manifest_file_01" ? "application/json" : "text/plain", size: 24, parents: ["drive_folder_12345"] }; },
     async download(id) { return imageIds.includes(id) ? png() : new TextEncoder().encode(text.get(id) ?? ""); },
     async isWithinOperationsFolder(id) { return !outside.has(id); },
-    async createFolder() { throw new Error("not used"); }, async upload() { throw new Error("not used"); }, async listManifestFiles() { return ["manifest_file_01"]; },
+    async createFolder() { throw new Error("not used"); }, async upload() { throw new Error("not used"); }, async listManifestFiles() { return ["manifest_file_01"]; }, async listWeeklyPlanFiles() { return []; },
   };
 }
 

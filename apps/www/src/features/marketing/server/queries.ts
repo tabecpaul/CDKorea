@@ -117,6 +117,27 @@ export async function getMarketingCalendar(view: MarketingCalendarView, anchor?:
   return { ...range, items };
 }
 
+export async function getImportedSchedulesForWeek(weekStart: string) {
+  const start = new Date(`${weekStart}T00:00:00${KST_OFFSET}`);
+  const endDate = addCalendarDays(weekStart, 7);
+  const end = new Date(`${endDate}T00:00:00${KST_OFFSET}`);
+  const rows = await db.select({
+    packageId: marketingContentVersions.sourcePackageId,
+    slug: marketingContents.slug,
+    campaignKey: marketingContents.campaignKey,
+    channel: marketingChannelSchedules.channel,
+    scheduledAt: marketingChannelSchedules.scheduledAt,
+  }).from(marketingChannelSchedules)
+    .innerJoin(marketingContents, eq(marketingChannelSchedules.contentId, marketingContents.id))
+    .innerJoin(marketingContentVersions, eq(marketingContents.currentVersionId, marketingContentVersions.id))
+    .where(and(
+      eq(marketingChannelSchedules.versionId, marketingContentVersions.id),
+      gte(marketingChannelSchedules.scheduledAt, start),
+      lt(marketingChannelSchedules.scheduledAt, end),
+    ));
+  return rows.map((row) => ({ ...row, scheduledAt: row.scheduledAt.toISOString() }));
+}
+
 export async function listMarketingContents(statusValue?: string, cursorValue?: string) {
   const status = marketingContentStatuses.includes(statusValue as MarketingContentStatus)
     ? statusValue as MarketingContentStatus
