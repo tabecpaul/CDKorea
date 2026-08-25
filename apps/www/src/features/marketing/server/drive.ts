@@ -13,6 +13,7 @@ export interface MarketingDriveClient {
   createFolder(name: string, parentId: string): Promise<string>;
   upload(name: string, parentId: string, mimeType: string, bytes: Uint8Array): Promise<string>;
   listManifestFiles(): Promise<string[]>;
+  listWeeklyPlanFiles(): Promise<string[]>;
 }
 
 export class DriveError extends Error {
@@ -63,6 +64,35 @@ export function createMarketingDriveClient(): MarketingDriveClient {
     const value = await response.json() as { id: string; name: string; mimeType: string; size?: string; parents?: string[] };
     return { id: value.id, name: value.name, mimeType: value.mimeType, size: Number(value.size ?? 0), parents: value.parents ?? [] };
   };
+  const listNamedFiles = async (name: string) => {
+    const ids: string[] = [];
+    let pageToken: string | undefined;
+    do {
+      const params = new URLSearchParams({ q: `name = '${name}' and trashed = false`, fields: "nextPageToken,files(id)", pageSize: "100", spaces: "drive" });
+      if (pageToken) params.set("pageToken", pageToken);
+      const response = await authorizedFetch(`${DRIVE_API}/files?${params}`);
+      const body = await response.json() as { nextPageToken?: string; files?: Array<{ id: string }> };
+      ids.push(...(body.files ?? []).map((file) => file.id));
+      pageToken = body.nextPageToken;
+    } while (pageToken && ids.length < 500);
+    const within = await Promise.all(ids.map(async (id) => ({ id, valid: await isWithinOperationsFolder(id) })));
+    return within.filter((item) => item.valid).map((item) => item.id);
+  };
+  const isWithinOperationsFolder = async (fileId: string) => {
+    let pending = [fileId];
+    const visited = new Set<string>();
+    for (let depth = 0; depth < 12 && pending.length; depth += 1) {
+      const next: string[] = [];
+      for (const id of pending) {
+        if (id === rootFolderId) return true;
+        if (visited.has(id)) continue;
+        visited.add(id);
+        next.push(...(await metadata(id)).parents);
+      }
+      pending = next;
+    }
+    return false;
+  };
   return {
     metadata,
     async download(fileId, maxBytes) {
@@ -73,21 +103,7 @@ export function createMarketingDriveClient(): MarketingDriveClient {
       if (bytes.length > maxBytes) throw new DriveError("DRIVE_FILE_TOO_LARGE");
       return bytes;
     },
-    async isWithinOperationsFolder(fileId) {
-      let pending = [fileId];
-      const visited = new Set<string>();
-      for (let depth = 0; depth < 12 && pending.length; depth += 1) {
-        const next: string[] = [];
-        for (const id of pending) {
-          if (id === rootFolderId) return true;
-          if (visited.has(id)) continue;
-          visited.add(id);
-          next.push(...(await metadata(id)).parents);
-        }
-        pending = next;
-      }
-      return false;
-    },
+    isWithinOperationsFolder,
     async createFolder(name, parentId) {
       const response = await authorizedFetch(`${DRIVE_API}/files?supportsAllDrives=true&fields=id`, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ name, mimeType: "application/vnd.google-apps.folder", parents: [parentId] }) });
       return ((await response.json()) as { id: string }).id;
@@ -101,18 +117,10 @@ export function createMarketingDriveClient(): MarketingDriveClient {
       return ((await response.json()) as { id: string }).id;
     },
     async listManifestFiles() {
-      const ids: string[] = [];
-      let pageToken: string | undefined;
-      do {
-        const params = new URLSearchParams({ q: "name = 'content-package.json' and trashed = false", fields: "nextPageToken,files(id)", pageSize: "100", spaces: "drive" });
-        if (pageToken) params.set("pageToken", pageToken);
-        const response = await authorizedFetch(`${DRIVE_API}/files?${params}`);
-        const body = await response.json() as { nextPageToken?: string; files?: Array<{ id: string }> };
-        ids.push(...(body.files ?? []).map((file) => file.id));
-        pageToken = body.nextPageToken;
-      } while (pageToken && ids.length < 500);
-      const within = await Promise.all(ids.map(async (id) => ({ id, valid: await this.isWithinOperationsFolder(id) })));
-      return within.filter((item) => item.valid).map((item) => item.id);
+      return listNamedFiles("content-package.json");
+    },
+    async listWeeklyPlanFiles() {
+      return listNamedFiles("weekly-content-plan.json");
     },
   };
 }
