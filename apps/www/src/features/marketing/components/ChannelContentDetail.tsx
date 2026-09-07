@@ -5,6 +5,7 @@ import AssetPreviewGallery from "./AssetPreviewGallery";
 import ChannelScheduleSummary from "./ChannelScheduleSummary";
 import MarketingCopyBlock from "./MarketingCopyBlock";
 import NaverPublishingPanel from "./NaverPublishingPanel";
+import ManualPublicationPanel from "./ManualPublicationPanel";
 
 type Detail = NonNullable<Awaited<ReturnType<typeof getMarketingContent>>>;
 type Schedule = Detail["schedules"][number];
@@ -25,5 +26,6 @@ export default function ChannelContentDetail({ detail, channel, schedule }: { de
     {channel !== "naver" ? <section className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6"><h2 className="text-xl font-black">{channelLabels[channel]} 문안</h2><div className="mt-5">{channel === "threads" ? <MarketingCopyBlock label="Threads" value={currentVersion.threadsPosts?.join("\n\n") ?? null} /> : <MarketingCopyBlock label="Facebook · Instagram" value={currentVersion.metaCaption} />}</div></section> : null}
 
     {channel === "naver" ? <NaverPublishingPanel contentId={detail.content.id} version={currentVersion.version} versionStatus={currentVersion.status} approvedSnapshotHash={currentVersion.approvedSnapshotHash} category={detail.content.naverCategory} ctaKind={detail.content.ctaKind} naverBody={currentVersion.naverBody} schedule={schedule} /> : null}
+    {channel !== "naver" ? <ManualPublicationPanel contentId={detail.content.id} channel={channel} versionStatus={currentVersion.status} approvedSnapshotHash={currentVersion.approvedSnapshotHash} schedule={schedule} /> : null}
   </div>;
 }

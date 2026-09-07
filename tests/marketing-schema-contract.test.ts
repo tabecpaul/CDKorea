@@ -73,3 +73,16 @@ test("Drive imports use a globally unique source package id", () => {
   assert.match(driveMigration, /marketing_content_versions_source_package_unique/);
   assert.doesNotMatch(driveMigration, /DROP|DISABLE ROW LEVEL SECURITY|GRANT/i);
 });
+
+test("marketing readiness gates and canonical evidence are explicitly persisted", () => {
+  const schema = readFileSync(new URL("../packages/db/src/schema.ts", import.meta.url), "utf8");
+  const migration = readFileSync(new URL("../packages/db/drizzle/0015_marketing_readiness_gates.sql", import.meta.url), "utf8");
+  assert.match(schema, /duplicateGate/);
+  assert.match(schema, /siteFirstStatus/);
+  assert.match(schema, /canonicalReadbackStatus/);
+  assert.match(schema, /marketingCanonicalReadbacks/);
+  assert.match(migration, /marketing_content_versions_duplicate_gate_check/);
+  assert.match(migration, /marketing_canonical_readbacks_result_check/);
+  assert.match(migration, /ENABLE ROW LEVEL SECURITY/);
+  assert.match(migration, /REVOKE ALL PRIVILEGES/);
+});

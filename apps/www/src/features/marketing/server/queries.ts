@@ -4,6 +4,7 @@ import { and, asc, desc, eq, gte, inArray, lt, or, sql } from "drizzle-orm";
 import {
   db,
   marketingApprovals,
+  marketingCanonicalReadbacks,
   marketingChannelSchedules,
   marketingConnections,
   marketingContentAssets,
@@ -158,8 +159,19 @@ export async function listMarketingContents(statusValue?: string, cursorValue?: 
     updatedAt: marketingContents.updatedAt,
     version: marketingContentVersions.version,
     status: marketingContentVersions.status,
+    duplicateGate: marketingContentVersions.duplicateGate,
+    siteFirstStatus: marketingContentVersions.siteFirstStatus,
+    canonicalReadbackStatus: marketingContentVersions.canonicalReadbackStatus,
+    approvedSnapshotHash: marketingContentVersions.approvedSnapshotHash,
+    approvalStatus: marketingApprovals.status,
+    approvalSnapshotHash: marketingApprovals.snapshotHash,
   }).from(marketingContents)
     .leftJoin(marketingContentVersions, eq(marketingContents.currentVersionId, marketingContentVersions.id))
+    .leftJoin(marketingApprovals, and(
+      eq(marketingApprovals.versionId, marketingContentVersions.id),
+      eq(marketingApprovals.status, "approved"),
+      eq(marketingApprovals.snapshotHash, marketingContentVersions.approvedSnapshotHash),
+    ))
     .where(conditions.length ? and(...conditions) : undefined)
     .orderBy(desc(marketingContents.updatedAt), desc(marketingContents.id))
     .limit(PAGE_SIZE + 1);
@@ -201,6 +213,11 @@ export async function getMarketingContent(id: number) {
       driveFolderId: marketingContentVersions.driveFolderId,
       canvaDesignUrl: marketingContentVersions.canvaDesignUrl,
       approvedSnapshotHash: marketingContentVersions.approvedSnapshotHash,
+      duplicateGate: marketingContentVersions.duplicateGate,
+      siteFirstStatus: marketingContentVersions.siteFirstStatus,
+      canonicalUrl: marketingContentVersions.canonicalUrl,
+      expectedArticleIdentity: marketingContentVersions.expectedArticleIdentity,
+      canonicalReadbackStatus: marketingContentVersions.canonicalReadbackStatus,
       createdBy: marketingContentVersions.createdBy,
       revisionNote: marketingContentVersions.revisionNote,
       createdAt: marketingContentVersions.createdAt,
@@ -208,9 +225,10 @@ export async function getMarketingContent(id: number) {
     db.select().from(marketingChannelSchedules).where(eq(marketingChannelSchedules.contentId, id)).orderBy(asc(marketingChannelSchedules.scheduledAt)),
   ]);
   const versionIds = versions.map((version) => version.id);
-  const [assets, approvals] = versionIds.length ? await Promise.all([
+  const [assets, approvals, canonicalReadbacks] = versionIds.length ? await Promise.all([
     db.select().from(marketingContentAssets).where(inArray(marketingContentAssets.versionId, versionIds)).orderBy(asc(marketingContentAssets.versionId), asc(marketingContentAssets.position)),
     db.select().from(marketingApprovals).where(inArray(marketingApprovals.versionId, versionIds)).orderBy(desc(marketingApprovals.createdAt)),
-  ]) : [[], []];
-  return { content: content[0], versions, assets, schedules, approvals };
+    db.select().from(marketingCanonicalReadbacks).where(inArray(marketingCanonicalReadbacks.versionId, versionIds)).orderBy(desc(marketingCanonicalReadbacks.checkedAt)),
+  ]) : [[], [], []];
+  return { content: content[0], versions, assets, schedules, approvals, canonicalReadbacks };
 }

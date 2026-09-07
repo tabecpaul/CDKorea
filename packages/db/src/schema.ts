@@ -418,6 +418,11 @@ export const marketingContentVersions = pgTable(
     driveFolderId: varchar("drive_folder_id", { length: 160 }),
     canvaDesignUrl: text("canva_design_url"),
     approvedSnapshotHash: varchar("approved_snapshot_hash", { length: 64 }),
+    duplicateGate: varchar("duplicate_gate", { length: 16 }).notNull().default("UNKNOWN"),
+    siteFirstStatus: varchar("site_first_status", { length: 20 }).notNull().default("UNKNOWN"),
+    canonicalUrl: text("canonical_url"),
+    expectedArticleIdentity: varchar("expected_article_identity", { length: 500 }),
+    canonicalReadbackStatus: varchar("canonical_readback_status", { length: 16 }).notNull().default("UNKNOWN"),
     createdBy: varchar("created_by", { length: 40 }).notNull(),
     revisionNote: varchar("revision_note", { length: 1000 }),
     createdAt: timestamp("created_at", { withTimezone: true }).notNull().defaultNow(),
@@ -426,6 +431,26 @@ export const marketingContentVersions = pgTable(
     uniqueIndex("marketing_content_versions_content_version_unique").on(table.contentId, table.version),
     uniqueIndex("marketing_content_versions_source_package_unique").on(table.sourcePackageId).where(sql`${table.sourcePackageId} is not null`),
     index("marketing_content_versions_content_created_idx").on(table.contentId, table.createdAt),
+  ],
+);
+
+export const marketingCanonicalReadbacks = pgTable(
+  "marketing_canonical_readbacks",
+  {
+    id: serial("id").primaryKey(),
+    contentId: integer("content_id").notNull().references(() => marketingContents.id, { onDelete: "cascade" }),
+    versionId: integer("version_id").notNull().references(() => marketingContentVersions.id, { onDelete: "cascade" }),
+    canonicalUrl: text("canonical_url").notNull(),
+    httpStatus: integer("http_status"),
+    expectedArticleIdentity: varchar("expected_article_identity", { length: 500 }).notNull(),
+    observedTitle: varchar("observed_title", { length: 1000 }),
+    observedIdentity: varchar("observed_identity", { length: 1000 }),
+    result: varchar("result", { length: 16 }).notNull(),
+    checkedAt: timestamp("checked_at", { withTimezone: true }).notNull().defaultNow(),
+  },
+  (table) => [
+    index("marketing_canonical_readbacks_version_checked_idx").on(table.versionId, table.checkedAt),
+    index("marketing_canonical_readbacks_content_checked_idx").on(table.contentId, table.checkedAt),
   ],
 );
 

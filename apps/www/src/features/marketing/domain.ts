@@ -28,6 +28,21 @@ export type MarketingChannelStatus = (typeof marketingChannelStatuses)[number];
 export const marketingApprovalStatuses = ["pending", "approved", "cancelled", "superseded"] as const;
 export type MarketingApprovalStatus = (typeof marketingApprovalStatuses)[number];
 
+export const duplicateGateStatuses = ["UNKNOWN", "PASS", "REVISE", "BLOCKED"] as const;
+export type DuplicateGateStatus = (typeof duplicateGateStatuses)[number];
+
+export const siteFirstStatuses = ["UNKNOWN", "NOT_PUBLISHED", "PUBLISHED", "FAILED"] as const;
+export type SiteFirstStatus = (typeof siteFirstStatuses)[number];
+
+export const canonicalReadbackStatuses = ["UNKNOWN", "PASS", "FAILED"] as const;
+export type CanonicalReadbackStatus = (typeof canonicalReadbackStatuses)[number];
+
+export const channelReadinessStatuses = ["HOLD", "READY", "ACTION_REQUIRED"] as const;
+export type ChannelReadinessStatus = (typeof channelReadinessStatuses)[number];
+
+export const marketingNotificationEvents = ["REVIEW_REQUIRED", "TODAY_READY", "HOLD_ACTION_REQUIRED", "PUBLISH_FAILED_OVERDUE"] as const;
+export type MarketingNotificationEvent = (typeof marketingNotificationEvents)[number];
+
 export type ApprovalSnapshot = {
   copyHash: string;
   assetHashes: readonly string[];

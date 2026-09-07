@@ -28,11 +28,12 @@ export default function NaverPublishingPanel({
   const [ctaLinked, setCtaLinked] = useState(false);
   const [mobileChecked, setMobileChecked] = useState(false);
   const [publishedUrl, setPublishedUrl] = useState("");
+  const [publishedAt, setPublishedAt] = useState("");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const completed = schedule?.status === "manual_published";
   const eligible = versionStatus === "approved" && Boolean(approvedSnapshotHash) && schedule?.mode === "manual" && Boolean(naverBody?.trim()) && Boolean(schedule?.utmUrl.trim());
-  const canSubmit = eligible && !completed && ctaLinked && mobileChecked && publishedUrl.trim().length > 0 && !busy;
+  const canSubmit = eligible && !completed && ctaLinked && mobileChecked && publishedUrl.trim().length > 0 && publishedAt.length > 0 && !busy;
 
   async function submit() {
     if (!canSubmit) return;
@@ -42,7 +43,7 @@ export default function NaverPublishingPanel({
       const response = await fetch(`/api/admin/marketing/${contentId}/naver-complete`, {
         method: "POST",
         headers: { "content-type": "application/json" },
-        body: JSON.stringify({ publishedUrl, ctaLinked, mobileDestinationChecked: mobileChecked }),
+        body: JSON.stringify({ publishedUrl, publishedAt: `${publishedAt}:00+09:00`, ctaLinked, mobileDestinationChecked: mobileChecked }),
       });
       const body = await response.json() as { ok?: boolean; error?: string };
       if (!response.ok) throw new Error(body.error ?? "naver_completion_failed");
@@ -75,6 +76,8 @@ export default function NaverPublishingPanel({
       </div>
       <label htmlFor="naver-published-url" className="mt-5 block text-sm font-bold">네이버 게시 URL</label>
       <input id="naver-published-url" type="url" inputMode="url" value={publishedUrl} onChange={(event) => setPublishedUrl(event.target.value)} disabled={!eligible || busy} placeholder="https://blog.naver.com/..." className="mt-2 w-full rounded-xl border border-navy/15 px-4 py-3 text-sm disabled:opacity-50" />
+      <label htmlFor="naver-published-at" className="mt-5 block text-sm font-bold">실제 게시 시각 (KST)</label>
+      <input id="naver-published-at" type="datetime-local" value={publishedAt} onChange={(event) => setPublishedAt(event.target.value)} disabled={!eligible || busy} className="mt-2 w-full rounded-xl border border-navy/15 px-4 py-3 text-sm disabled:opacity-50" />
       <button type="button" disabled={!canSubmit} onClick={submit} className="mt-4 w-full rounded-full bg-teal px-5 py-3 text-sm font-bold text-white disabled:opacity-50">{busy ? "완료 기록 중…" : "수동 발행 완료"}</button>
       {!eligible ? <p className="mt-3 text-xs text-navy/45">최종 승인된 현재 버전의 수동 네이버 일정과 원고·UTM이 모두 있어야 완료할 수 있습니다.</p> : null}
     </>}
