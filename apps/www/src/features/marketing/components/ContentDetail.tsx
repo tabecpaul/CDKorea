@@ -6,6 +6,7 @@ import MarketingCopyBlock from "./MarketingCopyBlock";
 import NaverPublishingPanel from "./NaverPublishingPanel";
 import GateControlPanel from "./GateControlPanel";
 import ManualPublicationPanel from "./ManualPublicationPanel";
+import PromoteProposalForm from "./PromoteProposalForm";
 import { channelReadiness, hasValidAdminApproval } from "../gates";
 import type { CanonicalReadbackStatus, DuplicateGateStatus, SiteFirstStatus } from "../domain";
 
@@ -27,6 +28,8 @@ export default function ContentDetail({ detail }: { detail: Detail }) {
   const currentReadbacks = currentVersion ? detail.canonicalReadbacks.filter((readback) => readback.versionId === currentVersion.id) : [];
   const isProposal = currentVersion?.status === "proposal";
   const recoveryAudit = currentVersion ? detail.audits.find((audit) => audit.versionId === currentVersion.id && (audit.action === "historical_proposal_imported" || audit.action === "package_imported") && audit.details?.recoveryKind === "historical_recovery") : null;
+  const promotionAudit = currentVersion ? detail.audits.find((audit) => audit.versionId === currentVersion.id && audit.action === "proposal_promoted_to_review") : null;
+  const siteBody = typeof promotionAudit?.details?.siteBody === "string" ? promotionAudit.details.siteBody : null;
   const recovery = recoveryAudit?.details;
   const sourceFileIds = typeof recovery?.sourceFileIds === "string" ? recovery.sourceFileIds.split(",").filter((id) => /^[A-Za-z0-9_-]{10,160}$/.test(id)) : [];
   return <>
@@ -40,6 +43,8 @@ export default function ContentDetail({ detail }: { detail: Detail }) {
 
         {recovery ? <section className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6"><h2 className="text-xl font-black">Historical recovery provenance</h2><dl className="mt-4 space-y-3 break-all text-sm"><div><dt className="font-bold text-navy/50">Source package ID</dt><dd>{currentVersion?.sourcePackageId}</dd></div>{typeof recovery.proposedDate === "string" ? <div><dt className="font-bold text-navy/50">제안일 · 발행 일정 아님</dt><dd>{recovery.proposedDate}</dd></div> : null}<div><dt className="font-bold text-navy/50">원본 Drive 폴더</dt><dd>{currentVersion?.driveFolderId ? <ExternalLink href={`https://drive.google.com/drive/folders/${currentVersion.driveFolderId}`}>{currentVersion.driveFolderId}</ExternalLink> : "—"}</dd></div><div><dt className="font-bold text-navy/50">원본 파일 ID</dt><dd className="space-y-1">{sourceFileIds.map((id) => <div key={id}><ExternalLink href={`https://drive.google.com/file/d/${id}/view`}>{id}</ExternalLink></div>)}</dd></div></dl></section> : null}
 
+        {isProposal ? <PromoteProposalForm /> : null}
+
         {currentVersion && !isProposal ? <GateControlPanel contentId={detail.content.id} duplicateGate={currentVersion.duplicateGate as DuplicateGateStatus} siteFirstStatus={currentVersion.siteFirstStatus as SiteFirstStatus} canonicalUrl={currentVersion.canonicalUrl} expectedArticleIdentity={currentVersion.expectedArticleIdentity} canonicalReadbackStatus={currentVersion.canonicalReadbackStatus as CanonicalReadbackStatus} readbacks={currentReadbacks} /> : null}
 
         {!isProposal ? <AssetPreviewGallery contentId={detail.content.id} version={currentVersion?.version ?? null} assets={currentAssets} /> : null}
@@ -52,7 +57,7 @@ export default function ContentDetail({ detail }: { detail: Detail }) {
 
         {!isProposal ? <AssetUploader contentId={detail.content.id} /> : null}
 
-        <section className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6"><h2 className="text-xl font-black">채널 문안</h2><div className="mt-5 space-y-5"><MarketingCopyBlock label="네이버 원고" value={currentVersion?.naverBody} /><MarketingCopyBlock label="Facebook · Instagram" value={currentVersion?.metaCaption} /><MarketingCopyBlock label="Threads" value={currentVersion?.threadsPosts?.join("\n\n") ?? null} /></div></section>
+        <section className="rounded-2xl border border-navy/10 bg-white p-5 sm:p-6"><h2 className="text-xl font-black">사이트 원문 · 채널 문안</h2><div className="mt-5 space-y-5"><MarketingCopyBlock label="Career Direct 사이트 원문" value={siteBody} /><MarketingCopyBlock label="네이버 원고" value={currentVersion?.naverBody} /><MarketingCopyBlock label="Facebook · Instagram" value={currentVersion?.metaCaption} /><MarketingCopyBlock label="Threads" value={currentVersion?.threadsPosts?.join("\n\n") ?? null} /></div></section>
       </div>
 
       <div className="space-y-6">

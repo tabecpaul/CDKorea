@@ -45,7 +45,7 @@ test("requires reapproval for copy, image, CTA, UTM, or schedule changes", () =>
 
 test("builds deterministic approval snapshot hashes in fixed order", () => {
   const snapshot = buildApprovalSnapshot({
-    copy: { naverBody: "naver", metaCaption: "meta", threadsPosts: ["one", "two"] },
+    copy: { siteBody: "site", naverBody: "naver", metaCaption: "meta", threadsPosts: ["one", "two"] },
     assetHashes: ["slide-01", "slide-02"],
     ctaKind: "career-check",
     schedules: [
@@ -53,7 +53,7 @@ test("builds deterministic approval snapshot hashes in fixed order", () => {
       { channel: "naver", utmUrl: "https://example.test/naver", scheduledAt: new Date("2026-08-26T23:00:00Z") },
     ],
   });
-  assert.equal(snapshot.copyHash, approvalCopyHash({ naverBody: "naver", metaCaption: "meta", threadsPosts: ["one", "two"] }));
+  assert.equal(snapshot.copyHash, approvalCopyHash({ siteBody: "site", naverBody: "naver", metaCaption: "meta", threadsPosts: ["one", "two"] }));
   assert.match(approvalSnapshotHash(snapshot), /^[0-9a-f]{64}$/);
   assert.equal(approvalSnapshotHash(snapshot), approvalSnapshotHash({ ...snapshot }));
   assert.equal(canonicalApprovalSnapshot(snapshot), canonicalApprovalSnapshot({ ...snapshot }));

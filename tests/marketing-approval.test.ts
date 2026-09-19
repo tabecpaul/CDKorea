@@ -29,9 +29,9 @@ test("approval UI states clearly that every channel remains manual", () => {
 });
 
 test("incomplete proposals cannot pass approval even after a later state transition", () => {
-  const ready = { campaignKey: "blog_launch_2026q3", ctaKind: "callback-20m", naverCategory: "이직·커리어 전환", naverBody: "원고", metaCaption: "문안", threadsPosts: ["게시문"], assetHashes: ["a", "b", "c", "d"], schedules: [{ channel: "naver", utmUrl: "https://example.com", scheduledAt: new Date() }] };
+  const ready = { siteBody: "사이트 원문", ctaKind: "callback-20m", naverBody: "원고", metaCaption: "문안", threadsPosts: ["게시문"], assetHashes: ["a", "b", "c", "d"] };
   assert.equal(isApprovalSnapshotComplete(ready), true);
-  assert.equal(isApprovalSnapshotComplete({ ...ready, campaignKey: "" }), false);
   assert.equal(isApprovalSnapshotComplete({ ...ready, ctaKind: "" }), false);
-  assert.equal(isApprovalSnapshotComplete({ ...ready, naverBody: null, assetHashes: [], schedules: [] }), false);
+  assert.equal(isApprovalSnapshotComplete({ ...ready, siteBody: null }), false);
+  assert.equal(isApprovalSnapshotComplete({ ...ready, naverBody: null, assetHashes: [] }), false);
 });

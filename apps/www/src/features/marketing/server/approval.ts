@@ -29,12 +29,14 @@ async function currentApprovalData(tx: MarketingTransaction, contentId: number) 
   if (!content.currentVersionId) throw new MarketingApprovalError("CONTENT_VERSION_NOT_FOUND");
   const [version] = await tx.select().from(marketingContentVersions).where(and(eq(marketingContentVersions.id, content.currentVersionId), eq(marketingContentVersions.contentId, content.id))).limit(1);
   if (!version) throw new MarketingApprovalError("CONTENT_VERSION_NOT_FOUND");
-  const [assets, schedules, approvals] = await Promise.all([
+  const [assets, schedules, approvals, reviewAudits] = await Promise.all([
     tx.select().from(marketingContentAssets).where(eq(marketingContentAssets.versionId, version.id)).orderBy(asc(marketingContentAssets.position)),
     tx.select().from(marketingChannelSchedules).where(eq(marketingChannelSchedules.versionId, version.id)).orderBy(asc(marketingChannelSchedules.channel)),
     tx.select().from(marketingApprovals).where(eq(marketingApprovals.versionId, version.id)),
+    tx.select({ details: marketingAuditLogs.details }).from(marketingAuditLogs).where(and(eq(marketingAuditLogs.versionId, version.id), eq(marketingAuditLogs.action, "proposal_promoted_to_review"))).limit(1),
   ]);
-  return { content, version, assets, schedules, approvals };
+  const siteBody = typeof reviewAudits[0]?.details?.siteBody === "string" ? reviewAudits[0].details.siteBody : null;
+  return { content, version, assets, schedules, approvals, siteBody };
 }
 
 export async function approveMarketingContent(contentId: number, actor = "admin") {
@@ -42,17 +44,15 @@ export async function approveMarketingContent(contentId: number, actor = "admin"
     await tx.execute(sql`select pg_advisory_xact_lock(${contentId})`);
     const current = await currentApprovalData(tx, contentId);
     if (!isApprovalSnapshotComplete({
-      campaignKey: current.content.campaignKey,
+      siteBody: current.siteBody,
       ctaKind: current.content.ctaKind,
-      naverCategory: current.content.naverCategory,
       naverBody: current.version.naverBody,
       metaCaption: current.version.metaCaption,
       threadsPosts: current.version.threadsPosts,
       assetHashes: current.assets.map((asset) => asset.sha256),
-      schedules: current.schedules.map((schedule) => ({ channel: schedule.channel, utmUrl: schedule.utmUrl, scheduledAt: schedule.scheduledAt })),
     })) throw new MarketingApprovalError("CONTENT_INCOMPLETE");
     const snapshot = buildApprovalSnapshot({
-      copy: { naverBody: current.version.naverBody, metaCaption: current.version.metaCaption, threadsPosts: current.version.threadsPosts },
+      copy: { siteBody: current.siteBody, naverBody: current.version.naverBody, metaCaption: current.version.metaCaption, threadsPosts: current.version.threadsPosts },
       assetHashes: current.assets.map((asset) => asset.sha256),
       ctaKind: current.content.ctaKind,
       schedules: current.schedules.map((schedule) => ({ channel: schedule.channel as MarketingChannel, utmUrl: schedule.utmUrl, scheduledAt: schedule.scheduledAt })),

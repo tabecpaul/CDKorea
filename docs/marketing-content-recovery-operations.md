@@ -20,4 +20,10 @@ Proposal slugs use `proposal-` plus the first 16 hex characters of SHA-256 over 
 
 Proposal creation → `content-package.json` creation → dashboard import → Production canonical database/detail read-back → notification with dashboard review link → administrator review/approval → authorized channel scheduling → actual manual publication → publication evidence and canonical read-back.
 
+제안이 등록된 뒤 제작이 완료되는 정상 흐름은 다음과 같습니다.
+
+Proposal import → 사이트 원문 우선 제작 → 파생 문안·카드 제작 → `review-package.json` 생성 → 읽기 전용 preflight → 같은 content ID의 새 `review_pending` 버전으로 promotion → Production read-back → 관리자 승인 또는 수정 요청.
+
+Promotion은 기존 proposal 버전을 보존하고 새 버전만 추가합니다. 사이트 원문은 승인 스냅샷에 포함됩니다. promotion 단계에서는 채널 일정, UTM, 승인, publish attempt, canonical read-back을 만들지 않습니다.
+
 Drive and email do not determine workflow status. The weekly reconciliation notification now refuses to mark email delivery successful while any planned import/read-back is missing or any manifest was rejected. A failed reconciliation remains actionable in the operations monitor. No approval or publication is automatic.

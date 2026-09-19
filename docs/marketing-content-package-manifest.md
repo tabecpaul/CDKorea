@@ -2,6 +2,36 @@
 
 ChatGPT Work는 각 완성 콘텐츠 폴더에 `content-package.json` 하나를 저장합니다. 대시보드는 이 파일을 가져오지만 자동 승인하거나 게시하지 않습니다.
 
+## Proposal review package
+
+제안이 먼저 등록된 뒤 콘텐츠가 완성되면 기존 제안 manifest를 덮어쓰지 않고 같은 폴더에 `review-package.json`을 추가합니다. 이 패키지는 기존 `proposalPackageId`를 정확히 가리키며, 같은 콘텐츠 ID에 새 `review_pending` 버전을 추가합니다.
+
+```json
+{
+  "schemaVersion": 1,
+  "kind": "proposal_review",
+  "packageId": "2026-09-21-review-594c9f7f7c00d832",
+  "proposalPackageId": "2026-09-21-proposal-594c9f7f7c00d832",
+  "driveFolderId": "DRIVE_FOLDER_ID",
+  "content": {
+    "title": "제안과 완전히 같은 제목",
+    "ctaKind": "career-check"
+  },
+  "files": {
+    "site": "SITE_BLOG_FILE_ID",
+    "naver": "NAVER_FILE_ID",
+    "meta": "META_FILE_ID",
+    "threads": "THREADS_FILE_ID",
+    "images": ["CARD_01_FILE_ID", "CARD_02_FILE_ID", "CARD_03_FILE_ID", "CARD_04_FILE_ID"]
+  }
+}
+```
+
+- `packageId`는 `proposalPackageId`의 `-proposal-`을 `-review-`로 바꾼 값이어야 합니다.
+- 사이트 원문, 파생 문안, 카드 파일은 모두 `driveFolderId`의 직접 자식이어야 합니다.
+- `schedules`, campaign key, UTM, 승인, 게시 증거는 이 manifest에 넣지 않습니다.
+- importer는 사이트 원문까지 승인 스냅샷에 포함하지만 채널 일정·승인·발행 레코드를 만들지 않습니다.
+
 ```json
 {
   "schemaVersion": 1,

@@ -2,14 +2,14 @@ import { createHash } from "node:crypto";
 import type { ApprovalSnapshot, MarketingChannel } from "../domain";
 import { canonicalApprovalSnapshot } from "../stateMachine";
 
-export type ApprovalCopy = { naverBody: string | null; metaCaption: string | null; threadsPosts: string[] | null };
+export type ApprovalCopy = { siteBody: string | null; naverBody: string | null; metaCaption: string | null; threadsPosts: string[] | null };
 
 export function sha256(value: string) {
   return createHash("sha256").update(value, "utf8").digest("hex");
 }
 
 export function approvalCopyHash(copy: ApprovalCopy) {
-  return sha256(JSON.stringify([copy.naverBody ?? "", copy.metaCaption ?? "", copy.threadsPosts ?? []]));
+  return sha256(JSON.stringify([copy.siteBody ?? "", copy.naverBody ?? "", copy.metaCaption ?? "", copy.threadsPosts ?? []]));
 }
 
 export function approvalSnapshotHash(snapshot: ApprovalSnapshot) {
