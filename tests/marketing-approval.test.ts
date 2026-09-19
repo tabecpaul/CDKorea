@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import test from "node:test";
 import { parseMarketingApprovalRequest } from "../apps/www/src/features/marketing/approvalRequest.ts";
+import { isApprovalSnapshotComplete } from "../apps/www/src/features/marketing/approvalCompleteness.ts";
 
 test("accepts only the two documented approval request shapes", () => {
   assert.deepEqual(parseMarketingApprovalRequest({ action: "approve" }), { action: "approve" });
@@ -25,4 +26,12 @@ test("approval UI states clearly that every channel remains manual", () => {
   assert.match(source, /모두 수동 발행 상태로 유지됩니다/);
   assert.match(source, /"최종 승인"/);
   assert.match(source, /"수정 요청"/);
+});
+
+test("incomplete proposals cannot pass approval even after a later state transition", () => {
+  const ready = { campaignKey: "blog_launch_2026q3", ctaKind: "callback-20m", naverCategory: "이직·커리어 전환", naverBody: "원고", metaCaption: "문안", threadsPosts: ["게시문"], assetHashes: ["a", "b", "c", "d"], schedules: [{ channel: "naver", utmUrl: "https://example.com", scheduledAt: new Date() }] };
+  assert.equal(isApprovalSnapshotComplete(ready), true);
+  assert.equal(isApprovalSnapshotComplete({ ...ready, campaignKey: "" }), false);
+  assert.equal(isApprovalSnapshotComplete({ ...ready, ctaKind: "" }), false);
+  assert.equal(isApprovalSnapshotComplete({ ...ready, naverBody: null, assetHashes: [], schedules: [] }), false);
 });

@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "proposal",
+  "packageId": "2026-09-23-proposal-fb6e60f9ab1c7f0e",
+  "driveFolderId": "1LGCIrZ4-uZHFVY18XDOOsIkEANGbBBIU",
+  "content": {
+    "slug": "proposal-fb6e60f9ab1c7f0e",
+    "title": "사역의 역할이 바뀌어도 소명이 사라진 것은 아닙니다",
+    "proposedDate": "2026-09-23"
+  },
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "proposal",
+    "sourceFileIds": [
+      "1KRlc275K_7wKZ4UvlAyB147ilMT7Kn6Q",
+      "1u--rUxbS6uO_38JdrmadvGB_7_xad5sx"
+    ]
+  }
+}

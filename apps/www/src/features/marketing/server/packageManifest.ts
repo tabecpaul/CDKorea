@@ -1,4 +1,5 @@
 import { marketingChannels, type MarketingChannel } from "../domain";
+import { parseRecoveryProvenance, type RecoveryProvenance } from "./recoveryProvenance";
 
 const PACKAGE_ID = /^[a-z0-9][a-z0-9._-]{2,179}$/;
 const SLUG = /^[a-z0-9][a-z0-9-]{1,158}[a-z0-9]$/;
@@ -21,6 +22,7 @@ export type ContentPackageManifest = {
   content: { slug: string; title: string; campaignKey: string; ctaKind: (typeof allowedCtas)[number]; naverCategory: string };
   files: { naver: string; meta: string; threads: string; images: string[] };
   schedules: ContentPackageSchedule[];
+  recovery?: RecoveryProvenance;
 };
 
 export class ManifestError extends Error {
@@ -60,7 +62,7 @@ function httpsUrl(value: unknown, path: string, requireUtm = false) {
 
 export function parseContentPackageManifest(input: unknown): ContentPackageManifest {
   const root = record(input, "$contentPackage");
-  exactKeys(root, ["schemaVersion", "packageId", "driveFolderId", "canvaDesignUrl", "content", "files", "schedules"], "$contentPackage");
+  exactKeys(root, ["schemaVersion", "packageId", "driveFolderId", "canvaDesignUrl", "content", "files", "schedules", "recovery"], "$contentPackage");
   if (root.schemaVersion !== 1) throw new ManifestError("UNSUPPORTED_SCHEMA", "$contentPackage.schemaVersion");
   const packageId = string(root.packageId, "$contentPackage.packageId", 180);
   if (!PACKAGE_ID.test(packageId)) throw new ManifestError("INVALID_PACKAGE_ID", "$contentPackage.packageId");
@@ -78,7 +80,9 @@ export function parseContentPackageManifest(input: unknown): ContentPackageManif
   const images = files.images.map((value, index) => driveId(value, `$contentPackage.files.images[${index}]`));
   if (new Set(images).size !== images.length) throw new ManifestError("DUPLICATE_IMAGE", "$contentPackage.files.images");
 
-  if (!Array.isArray(root.schedules) || root.schedules.length < 1 || root.schedules.length > marketingChannels.length) throw new ManifestError("INVALID_SCHEDULES", "$contentPackage.schedules");
+  const recovery = root.recovery === undefined ? undefined : parseRecoveryProvenance(root.recovery, "produced_unpublished");
+  const minimumSchedules = recovery ? 0 : 1;
+  if (!Array.isArray(root.schedules) || root.schedules.length < minimumSchedules || root.schedules.length > marketingChannels.length) throw new ManifestError("INVALID_SCHEDULES", "$contentPackage.schedules");
   const seen = new Set<string>();
   const schedules = root.schedules.map((entry, index) => {
     const item = record(entry, `$contentPackage.schedules[${index}]`);
@@ -98,5 +102,6 @@ export function parseContentPackageManifest(input: unknown): ContentPackageManif
     ...(root.canvaDesignUrl === undefined ? {} : { canvaDesignUrl: httpsUrl(root.canvaDesignUrl, "$contentPackage.canvaDesignUrl") }),
     content: { slug, title: string(content.title, "$contentPackage.content.title", 240), campaignKey: string(content.campaignKey, "$contentPackage.content.campaignKey", 120), ctaKind: ctaKind as ContentPackageManifest["content"]["ctaKind"], naverCategory: string(content.naverCategory, "$contentPackage.content.naverCategory", 80) },
     files: { naver: driveId(files.naver, "$contentPackage.files.naver"), meta: driveId(files.meta, "$contentPackage.files.meta"), threads: driveId(files.threads, "$contentPackage.files.threads"), images }, schedules,
+    ...(recovery === undefined ? {} : { recovery }),
   };
 }

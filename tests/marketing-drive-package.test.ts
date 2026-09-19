@@ -1,4 +1,5 @@
 import assert from "node:assert/strict";
+import { readFileSync } from "node:fs";
 import test from "node:test";
 import type { MarketingDriveClient, DriveFileMeta } from "../apps/www/src/features/marketing/server/drive.ts";
 import { prepareMarketingPackage } from "../apps/www/src/features/marketing/server/packagePreparation.ts";
@@ -16,9 +17,9 @@ const manifest = {
   schedules: [{ channel: "naver", scheduledAt: "2026-08-31T07:40:00+09:00", mode: "manual", utmUrl: "https://start.careerdirect.kr/career-check?utm_source=naver&utm_medium=organic_social&utm_campaign=campaign_key" }],
 };
 
-function fakeDrive(outside = new Set<string>()): MarketingDriveClient {
+function fakeDrive(outside = new Set<string>(), threads = JSON.stringify(["첫 글", "둘째 글"])): MarketingDriveClient {
   const text = new Map<string, string>([
-    ["manifest_file_01", JSON.stringify(manifest)], [manifest.files.naver, "네이버 원고"], [manifest.files.meta, "Meta 문안"], [manifest.files.threads, JSON.stringify(["첫 글", "둘째 글"])],
+    ["manifest_file_01", JSON.stringify(manifest)], [manifest.files.naver, "네이버 원고"], [manifest.files.meta, "Meta 문안"], [manifest.files.threads, threads],
   ]);
   return {
     async metadata(id): Promise<DriveFileMeta> { return { id, name: imageIds.includes(id) ? `${id}.png` : `${id}.txt`, mimeType: imageIds.includes(id) ? "image/png" : id === "manifest_file_01" ? "application/json" : "text/plain", size: 24, parents: ["drive_folder_12345"] }; },
@@ -35,6 +36,18 @@ test("prepares copy and ordered image hashes without changing Drive", async () =
   assert.deepEqual(prepared.threadsPosts, ["첫 글", "둘째 글"]);
 });
 
+test("preserves source numbered Threads Markdown as four posts for historical recovery", async () => {
+  const original = "1/4\n첫 글\n\n2/4\n둘째 글\n\n3/4\n셋째 글\n\n4/4\n넷째 글\n";
+  const prepared = await prepareMarketingPackage("manifest_file_01", fakeDrive(new Set(), original));
+  assert.deepEqual(prepared.threadsPosts, ["첫 글", "둘째 글", "셋째 글", "넷째 글"]);
+});
+
 test("rejects references outside the configured operations folder", async () => {
   await assert.rejects(() => prepareMarketingPackage("manifest_file_01", fakeDrive(new Set([imageIds[2]]))), /DRIVE_FILE_OUTSIDE_OPERATIONS_FOLDER/);
+});
+
+test("historical complete import has a collision guard before creating a version", () => {
+  const source = readFileSync(new URL("../apps/www/src/features/marketing/server/importJob.ts", import.meta.url), "utf8");
+  assert.match(source, /HISTORICAL_RECOVERY_COLLISION/);
+  assert.match(source, /prepared\.manifest\.recovery/);
 });

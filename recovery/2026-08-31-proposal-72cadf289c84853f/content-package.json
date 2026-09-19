@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "proposal",
+  "packageId": "2026-08-31-proposal-72cadf289c84853f",
+  "driveFolderId": "1cCziITUOlF_sQnDLkPdC4GOdiG8qICCM",
+  "content": {
+    "slug": "proposal-72cadf289c84853f",
+    "title": "진로 결정을 미루게 만드는 것은 정보 부족만이 아닙니다",
+    "proposedDate": "2026-08-31"
+  },
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "proposal",
+    "sourceFileIds": [
+      "1C7p-pe08q1GLPwFVrxAg08dnrYC4_P44",
+      "11w-OhE3GB7zxTkY7dLgD8WdpoM_QugB-"
+    ]
+  }
+}

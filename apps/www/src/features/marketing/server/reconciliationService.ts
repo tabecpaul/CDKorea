@@ -3,6 +3,7 @@ import { parseContentPackageManifest, type ContentPackageManifest } from "./pack
 import { getImportedSchedulesForWeek } from "./queries";
 import { reconcileWeeklySchedule } from "./reconciliation";
 import { loadWeeklyContentPlan } from "./weeklyPlanDrive";
+import { shouldAutoImportManifest } from "./automaticImportPolicy";
 
 export async function collectWeeklyReconciliation(
   weekStart: string,
@@ -14,7 +15,9 @@ export async function collectWeeklyReconciliation(
   let rejectedManifests = 0;
   for (const id of manifestIds) {
     try {
-      manifests.push(parseContentPackageManifest(JSON.parse(await readDriveText(drive, id)) as unknown));
+      const raw = JSON.parse(await readDriveText(drive, id)) as unknown;
+      if (!shouldAutoImportManifest(raw)) continue;
+      manifests.push(parseContentPackageManifest(raw));
     } catch {
       rejectedManifests += 1;
     }

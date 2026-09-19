@@ -1,4 +1,4 @@
-import { and, desc, eq, sql } from "drizzle-orm";
+import { and, desc, eq, or, sql } from "drizzle-orm";
 import { db, marketingAuditLogs, marketingChannelSchedules, marketingContentAssets, marketingContents, marketingContentVersions } from "@newland/db";
 import type { MarketingDriveClient } from "./drive";
 import { ManifestError } from "./packageManifest";
@@ -10,13 +10,20 @@ function safeCode(error: unknown) {
   return error instanceof Error ? error.name.slice(0, 100) : "IMPORT_FAILED";
 }
 
-export async function persistMarketingPackage(prepared: PreparedMarketingPackage, actor = "chatgpt_work") {
+export async function persistMarketingPackage(prepared: PreparedMarketingPackage, actor = "chatgpt_work", manifestFileId?: string) {
   const existing = await db.select({ id: marketingContentVersions.id, contentId: marketingContentVersions.contentId }).from(marketingContentVersions).where(eq(marketingContentVersions.sourcePackageId, prepared.manifest.packageId)).limit(1);
   if (existing[0]) return { duplicate: true, versionId: existing[0].id, contentId: existing[0].contentId };
 
   try {
     return await db.transaction(async (tx) => {
       await tx.execute(sql`select pg_advisory_xact_lock(hashtext(${prepared.manifest.content.slug}))`);
+      if (prepared.manifest.recovery) {
+        const collision = await tx.select({ id: marketingContents.id }).from(marketingContents).where(or(
+          eq(marketingContents.slug, prepared.manifest.content.slug),
+          eq(marketingContents.title, prepared.manifest.content.title),
+        )).limit(1);
+        if (collision.length) throw new Error("HISTORICAL_RECOVERY_COLLISION");
+      }
       await tx.insert(marketingContents).values({
         slug: prepared.manifest.content.slug,
         title: prepared.manifest.content.title,
@@ -44,12 +51,14 @@ export async function persistMarketingPackage(prepared: PreparedMarketingPackage
         versionId: version.id, position: index + 1, driveFileId: asset.driveFileId, filename: asset.filename,
         mimeType: asset.mimeType, byteSize: asset.byteSize, sha256: asset.sha256, width: asset.width, height: asset.height,
       })));
-      await tx.insert(marketingChannelSchedules).values(prepared.manifest.schedules.map((schedule) => ({
-        contentId: content.id, versionId: version.id, channel: schedule.channel, scheduledAt: new Date(schedule.scheduledAt),
-        mode: schedule.mode, utmUrl: schedule.utmUrl, status: "approval_pending",
-      })));
+      if (prepared.manifest.schedules.length) {
+        await tx.insert(marketingChannelSchedules).values(prepared.manifest.schedules.map((schedule) => ({
+          contentId: content.id, versionId: version.id, channel: schedule.channel, scheduledAt: new Date(schedule.scheduledAt),
+          mode: schedule.mode, utmUrl: schedule.utmUrl, status: "approval_pending",
+        })));
+      }
       await tx.update(marketingContents).set({ currentVersionId: version.id, updatedAt: new Date() }).where(and(eq(marketingContents.id, content.id), eq(marketingContents.slug, prepared.manifest.content.slug)));
-      await tx.insert(marketingAuditLogs).values({ contentId: content.id, versionId: version.id, actor, action: "package_imported", details: { packageId: prepared.manifest.packageId, assetCount: prepared.assets.length } });
+      await tx.insert(marketingAuditLogs).values({ contentId: content.id, versionId: version.id, actor, action: "package_imported", details: { packageId: prepared.manifest.packageId, assetCount: prepared.assets.length, ...(prepared.manifest.recovery ? { recoveryKind: prepared.manifest.recovery.kind, sourceStatus: prepared.manifest.recovery.sourceStatus, sourceFolderId: prepared.manifest.driveFolderId, sourceFileIds: prepared.manifest.recovery.sourceFileIds.join(","), ...(manifestFileId ? { manifestFileId } : {}) } : {}) } });
       return { duplicate: false, versionId: version.id, contentId: content.id };
     });
   } catch (error) {
@@ -61,7 +70,7 @@ export async function persistMarketingPackage(prepared: PreparedMarketingPackage
 
 export async function importMarketingPackage(manifestFileId: string, client?: MarketingDriveClient, actor = "chatgpt_work") {
   try {
-    return await persistMarketingPackage(await prepareMarketingPackage(manifestFileId, client), actor);
+    return await persistMarketingPackage(await prepareMarketingPackage(manifestFileId, client), actor, manifestFileId);
   } catch (error) {
     await db.insert(marketingAuditLogs).values({ actor, action: "package_import_failed", details: { errorCode: safeCode(error) } }).catch(() => undefined);
     throw error;

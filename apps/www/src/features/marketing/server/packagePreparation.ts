@@ -19,7 +19,14 @@ function validateCopy(value: string, kind: "naver" | "meta") {
 
 function parseThreads(value: string) {
   let parsed: unknown;
-  try { parsed = JSON.parse(value); } catch { throw new Error("THREADS_COPY_INVALID"); }
+  try { parsed = JSON.parse(value); } catch {
+    const normalized = value.replace(/\r\n/g, "\n").trim();
+    const matches = [...normalized.matchAll(/(?:^|\n)(\d{1,2})\/(\d{1,2})\s*\n/g)];
+    if (!matches.length || matches[0].index !== 0) throw new Error("THREADS_COPY_INVALID");
+    const total = Number(matches[0][2]);
+    if (total < 1 || total > 20 || matches.length !== total || matches.some((match, index) => Number(match[1]) !== index + 1 || Number(match[2]) !== total)) throw new Error("THREADS_COPY_INVALID");
+    parsed = matches.map((match, index) => normalized.slice((match.index ?? 0) + match[0].length, matches[index + 1]?.index ?? normalized.length).trim());
+  }
   if (!Array.isArray(parsed) || parsed.length < 1 || parsed.length > 20 || parsed.some((item) => typeof item !== "string" || !item.trim() || item.length > 500)) throw new Error("THREADS_COPY_INVALID");
   return parsed.map((item) => (item as string).trim());
 }
@@ -31,7 +38,7 @@ async function requireOperationsFile(client: MarketingDriveClient, fileId: strin
 export async function prepareMarketingPackage(manifestFileId: string, client: MarketingDriveClient = createMarketingDriveClient()): Promise<PreparedMarketingPackage> {
   await requireOperationsFile(client, manifestFileId);
   const manifest = parseContentPackageManifest(JSON.parse(await readDriveText(client, manifestFileId)) as unknown);
-  const referenced = [manifest.driveFolderId, manifest.files.naver, manifest.files.meta, manifest.files.threads, ...manifest.files.images];
+  const referenced = [manifest.driveFolderId, manifest.files.naver, manifest.files.meta, manifest.files.threads, ...manifest.files.images, ...(manifest.recovery?.sourceFileIds ?? [])];
   await Promise.all(referenced.map((fileId) => requireOperationsFile(client, fileId)));
   const [naverBody, metaCaption, threadsRaw, ...imageBytes] = await Promise.all([
     readDriveText(client, manifest.files.naver), readDriveText(client, manifest.files.meta), readDriveText(client, manifest.files.threads),

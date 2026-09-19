@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "proposal",
+  "packageId": "2026-09-25-proposal-ab546e556e5e5d7a",
+  "driveFolderId": "1LGCIrZ4-uZHFVY18XDOOsIkEANGbBBIU",
+  "content": {
+    "slug": "proposal-ab546e556e5e5d7a",
+    "title": "은퇴 후 두 번째 진로, ‘무엇을 할까’보다 ‘어떤 삶을 살까’부터",
+    "proposedDate": "2026-09-25"
+  },
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "proposal",
+    "sourceFileIds": [
+      "1KRlc275K_7wKZ4UvlAyB147ilMT7Kn6Q",
+      "1u--rUxbS6uO_38JdrmadvGB_7_xad5sx"
+    ]
+  }
+}

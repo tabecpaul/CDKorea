@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "packageId": "2026-09-11-career-small-experiments",
+  "driveFolderId": "1OaRTklZYzr1f7bNgoRLkgryul4RljKyc",
+  "content": {
+    "slug": "career-small-experiments",
+    "title": "진로는 한 번에 정하는 것이 아니라 작은 실험으로 검증합니다",
+    "campaignKey": "blog_launch_2026q3",
+    "ctaKind": "callback-20m",
+    "naverCategory": "이직·커리어 전환"
+  },
+  "files": {
+    "naver": "1df3cUfoB2uTWAnl85SIFb5C4We_a-XGQ",
+    "meta": "1webuOtGkuLuAyrN8YkRCftlPrLVjkDWZ",
+    "threads": "1-eGhCVOPhJ0kIpxn8VZ-vIbUXt473gcN",
+    "images": [
+      "1gTCzdi2QwMYeo_tsatBLMJTk2XMBVwpb",
+      "1hABCjF3xv0qozjMTDFHmLHlYs-NzXCeq",
+      "122_QdGPOKX2aEhGVrJBlV4gJYtOFyPOe",
+      "10rsEbNVsFWsUfiFJGw2yn5tBPtascK1G",
+      "1dMPcaD_uRPOM8TxBU8otFRzUpknjaTS5"
+    ]
+  },
+  "schedules": [],
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "produced_unpublished",
+    "sourceFileIds": [
+      "1df3cUfoB2uTWAnl85SIFb5C4We_a-XGQ",
+      "1webuOtGkuLuAyrN8YkRCftlPrLVjkDWZ",
+      "1-eGhCVOPhJ0kIpxn8VZ-vIbUXt473gcN",
+      "1gTCzdi2QwMYeo_tsatBLMJTk2XMBVwpb",
+      "1hABCjF3xv0qozjMTDFHmLHlYs-NzXCeq",
+      "122_QdGPOKX2aEhGVrJBlV4gJYtOFyPOe",
+      "10rsEbNVsFWsUfiFJGw2yn5tBPtascK1G",
+      "1dMPcaD_uRPOM8TxBU8otFRzUpknjaTS5",
+      "1FvzOXRdtBcFrRqbckjkPnWwfw4mX3ElW",
+      "1UiI3d2p1kXhqvemwQ4DGn3Vr0hcUMcaK"
+    ]
+  }
+}

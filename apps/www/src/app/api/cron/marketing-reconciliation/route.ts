@@ -1,6 +1,7 @@
 import { collectWeeklyReconciliation } from "@/features/marketing/server/reconciliationService";
 import { sendReconciliationEmail } from "@/features/marketing/server/reconciliationEmail";
 import { nextKstWeekStart } from "@/features/marketing/server/weeklyPlan";
+import { canSendReconciliationReviewEmail } from "@/features/marketing/server/reconciliationNotificationGate";
 import { completeJobRun, failJobRun, hasSentMarketingReconciliation, startJobRun } from "@/features/operations-monitor/server/jobRuns";
 
 export async function GET(request: Request) {
@@ -14,6 +15,10 @@ export async function GET(request: Request) {
   const runId = await startJobRun("marketing-reconciliation");
   try {
     const snapshot = await collectWeeklyReconciliation(weekStart);
+    if (!canSendReconciliationReviewEmail(snapshot)) {
+      await failJobRun(runId, new Error("MARKETING_CANONICAL_IMPORT_INCOMPLETE"));
+      return Response.json({ error: "canonical_import_incomplete", weekStart, imported: snapshot.imported.length, missing: snapshot.missing.length, rejectedManifests: snapshot.rejectedManifests, notified: false }, { status: 409 });
+    }
     const email = await sendReconciliationEmail(snapshot);
     if (!email.ok) {
       await failJobRun(runId, new Error(email.errorCode));

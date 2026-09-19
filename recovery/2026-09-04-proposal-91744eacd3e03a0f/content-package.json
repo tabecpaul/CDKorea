@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "proposal",
+  "packageId": "2026-09-04-proposal-91744eacd3e03a0f",
+  "driveFolderId": "1cCziITUOlF_sQnDLkPdC4GOdiG8qICCM",
+  "content": {
+    "slug": "proposal-91744eacd3e03a0f",
+    "title": "바뀌는 직업보다 먼저 지켜야 할 진로 기준",
+    "proposedDate": "2026-09-04"
+  },
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "proposal",
+    "sourceFileIds": [
+      "1C7p-pe08q1GLPwFVrxAg08dnrYC4_P44",
+      "11w-OhE3GB7zxTkY7dLgD8WdpoM_QugB-"
+    ]
+  }
+}

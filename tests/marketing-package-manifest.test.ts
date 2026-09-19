@@ -36,3 +36,15 @@ test("keeps Naver manual and requires explicit KST offsets", () => {
   assert.throws(() => parseContentPackageManifest({ ...valid, schedules: [{ ...valid.schedules[0], mode: "automatic" }] }), (error) => error instanceof ManifestError && error.code === "INVALID_MODE");
   assert.throws(() => parseContentPackageManifest({ ...valid, schedules: [{ ...valid.schedules[0], scheduledAt: "2026-08-31T07:40:00Z" }] }), (error) => error instanceof ManifestError && error.code === "INVALID_KST_TIME");
 });
+
+test("accepts bounded historical recovery provenance without changing complete-package status", () => {
+  const parsed = parseContentPackageManifest({ ...valid, recovery: { kind: "historical_recovery", sourceStatus: "produced_unpublished", sourceFileIds: [valid.files.naver, valid.files.meta, valid.files.threads] } });
+  assert.equal(parsed.recovery?.sourceStatus, "produced_unpublished");
+  assert.equal(parsed.schedules.length, 1);
+});
+
+test("allows schedule-free produced recovery while normal packages still require schedules", () => {
+  const recovery = { kind: "historical_recovery", sourceStatus: "produced_unpublished", sourceFileIds: [valid.files.naver, valid.files.meta, valid.files.threads] };
+  assert.deepEqual(parseContentPackageManifest({ ...valid, recovery, schedules: [] }).schedules, []);
+  assert.throws(() => parseContentPackageManifest({ ...valid, schedules: [] }), (error) => error instanceof ManifestError && error.code === "INVALID_SCHEDULES");
+});

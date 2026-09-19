@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import { buildReconciliationEmail } from "../apps/www/src/features/marketing/server/reconciliationEmail.ts";
+import { canSendReconciliationReviewEmail } from "../apps/www/src/features/marketing/server/reconciliationNotificationGate.ts";
 
 test("renders the three fixed groups and Naver manual checks", () => {
   const email = buildReconciliationEmail({
@@ -17,4 +18,11 @@ test("renders the three fixed groups and Naver manual checks", () => {
   assert.match(email.html, /CTA 링크를 직접 연결/);
   assert.match(email.html, /&lt;누락&gt;/);
   assert.doesNotMatch(email.html, /<누락>/);
+});
+
+test("does not send a review email before every planned import is canonically read back", () => {
+  assert.equal(canSendReconciliationReviewEmail({ imported: [{ slug: "ready" }], missing: [], rejectedManifests: 0 }), true);
+  assert.equal(canSendReconciliationReviewEmail({ imported: [], missing: [{ slug: "missing" }], rejectedManifests: 0 }), false);
+  assert.equal(canSendReconciliationReviewEmail({ imported: [{ slug: "ready" }], missing: [], rejectedManifests: 1 }), false);
+  assert.equal(canSendReconciliationReviewEmail({ imported: [], missing: [], rejectedManifests: 0 }), false);
 });

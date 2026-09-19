@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "proposal",
+  "packageId": "2026-09-21-proposal-594c9f7f7c00d832",
+  "driveFolderId": "1LGCIrZ4-uZHFVY18XDOOsIkEANGbBBIU",
+  "content": {
+    "slug": "proposal-594c9f7f7c00d832",
+    "title": "전공을 고를 때 ‘좋아하는 과목’만 보면 놓치는 세 가지",
+    "proposedDate": "2026-09-21"
+  },
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "proposal",
+    "sourceFileIds": [
+      "1KRlc275K_7wKZ4UvlAyB147ilMT7Kn6Q",
+      "1u--rUxbS6uO_38JdrmadvGB_7_xad5sx"
+    ]
+  }
+}

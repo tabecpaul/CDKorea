@@ -4,6 +4,7 @@ import { and, asc, desc, eq, gte, inArray, lt, or, sql } from "drizzle-orm";
 import {
   db,
   marketingApprovals,
+  marketingAuditLogs,
   marketingCanonicalReadbacks,
   marketingChannelSchedules,
   marketingConnections,
@@ -176,9 +177,13 @@ export async function listMarketingContents(statusValue?: string, cursorValue?: 
     .orderBy(desc(marketingContents.updatedAt), desc(marketingContents.id))
     .limit(PAGE_SIZE + 1);
   const items = rows.slice(0, PAGE_SIZE);
+  const proposalAudits = items.length ? await db.select({ contentId: marketingAuditLogs.contentId, details: marketingAuditLogs.details })
+    .from(marketingAuditLogs)
+    .where(and(inArray(marketingAuditLogs.contentId, items.map((item) => item.id)), eq(marketingAuditLogs.action, "historical_proposal_imported"))) : [];
+  const proposedDates = new Map(proposalAudits.map((audit) => [audit.contentId, typeof audit.details?.proposedDate === "string" ? audit.details.proposedDate : null]));
   const last = items.at(-1);
   return {
-    items,
+    items: items.map((item) => ({ ...item, proposedDate: proposedDates.get(item.id) ?? null })),
     nextCursor: rows.length > PAGE_SIZE && last
       ? encodeCursor({ updatedAt: last.updatedAt.toISOString(), id: last.id })
       : null,
@@ -210,6 +215,7 @@ export async function getMarketingContent(id: number) {
       naverBody: marketingContentVersions.naverBody,
       metaCaption: marketingContentVersions.metaCaption,
       threadsPosts: marketingContentVersions.threadsPosts,
+      sourcePackageId: marketingContentVersions.sourcePackageId,
       driveFolderId: marketingContentVersions.driveFolderId,
       canvaDesignUrl: marketingContentVersions.canvaDesignUrl,
       approvedSnapshotHash: marketingContentVersions.approvedSnapshotHash,
@@ -225,10 +231,11 @@ export async function getMarketingContent(id: number) {
     db.select().from(marketingChannelSchedules).where(eq(marketingChannelSchedules.contentId, id)).orderBy(asc(marketingChannelSchedules.scheduledAt)),
   ]);
   const versionIds = versions.map((version) => version.id);
-  const [assets, approvals, canonicalReadbacks] = versionIds.length ? await Promise.all([
+  const [assets, approvals, canonicalReadbacks, audits] = versionIds.length ? await Promise.all([
     db.select().from(marketingContentAssets).where(inArray(marketingContentAssets.versionId, versionIds)).orderBy(asc(marketingContentAssets.versionId), asc(marketingContentAssets.position)),
     db.select().from(marketingApprovals).where(inArray(marketingApprovals.versionId, versionIds)).orderBy(desc(marketingApprovals.createdAt)),
     db.select().from(marketingCanonicalReadbacks).where(inArray(marketingCanonicalReadbacks.versionId, versionIds)).orderBy(desc(marketingCanonicalReadbacks.checkedAt)),
-  ]) : [[], [], []];
-  return { content: content[0], versions, assets, schedules, approvals, canonicalReadbacks };
+    db.select().from(marketingAuditLogs).where(eq(marketingAuditLogs.contentId, id)).orderBy(desc(marketingAuditLogs.createdAt)),
+  ]) : [[], [], [], []];
+  return { content: content[0], versions, assets, schedules, approvals, canonicalReadbacks, audits };
 }

@@ -13,8 +13,9 @@ import {
 import type { MarketingChannel, MarketingContentStatus } from "../domain";
 import { canTransitionContent } from "../stateMachine";
 import { approvalSnapshotHash, buildApprovalSnapshot } from "./approvalSnapshot";
+import { isApprovalSnapshotComplete } from "../approvalCompleteness";
 
-export type MarketingApprovalErrorCode = "CONTENT_NOT_FOUND" | "CONTENT_VERSION_NOT_FOUND" | "CONTENT_STATE_CONFLICT" | "REVISION_NOTE_INVALID";
+export type MarketingApprovalErrorCode = "CONTENT_NOT_FOUND" | "CONTENT_VERSION_NOT_FOUND" | "CONTENT_STATE_CONFLICT" | "CONTENT_INCOMPLETE" | "REVISION_NOTE_INVALID";
 
 export class MarketingApprovalError extends Error {
   constructor(public code: MarketingApprovalErrorCode) { super(code); }
@@ -40,6 +41,16 @@ export async function approveMarketingContent(contentId: number, actor = "admin"
   return db.transaction(async (tx) => {
     await tx.execute(sql`select pg_advisory_xact_lock(${contentId})`);
     const current = await currentApprovalData(tx, contentId);
+    if (!isApprovalSnapshotComplete({
+      campaignKey: current.content.campaignKey,
+      ctaKind: current.content.ctaKind,
+      naverCategory: current.content.naverCategory,
+      naverBody: current.version.naverBody,
+      metaCaption: current.version.metaCaption,
+      threadsPosts: current.version.threadsPosts,
+      assetHashes: current.assets.map((asset) => asset.sha256),
+      schedules: current.schedules.map((schedule) => ({ channel: schedule.channel, utmUrl: schedule.utmUrl, scheduledAt: schedule.scheduledAt })),
+    })) throw new MarketingApprovalError("CONTENT_INCOMPLETE");
     const snapshot = buildApprovalSnapshot({
       copy: { naverBody: current.version.naverBody, metaCaption: current.version.metaCaption, threadsPosts: current.version.threadsPosts },
       assetHashes: current.assets.map((asset) => asset.sha256),

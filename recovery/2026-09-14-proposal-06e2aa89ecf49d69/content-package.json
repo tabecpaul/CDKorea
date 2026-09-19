@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "proposal",
+  "packageId": "2026-09-14-proposal-06e2aa89ecf49d69",
+  "driveFolderId": "1LzOoDhq3ja6mwzEVpLeJNk6YXz379xxg",
+  "content": {
+    "slug": "proposal-06e2aa89ecf49d69",
+    "title": "‘잘할 수 있는 일’과 ‘오래 할 수 있는 일’은 다릅니다",
+    "proposedDate": "2026-09-14"
+  },
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "proposal",
+    "sourceFileIds": [
+      "1-uZfgKJBT3OwqSAElkBnNSssy86MrYLs",
+      "1DMHvZHJNxQSKtxsM3_eAKt9MAkfLTEfH"
+    ]
+  }
+}

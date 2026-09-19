@@ -1,4 +1,5 @@
-import { createMarketingDriveClient } from "@/features/marketing/server/drive";
+import { createMarketingDriveClient, readDriveText } from "@/features/marketing/server/drive";
+import { shouldAutoImportManifest } from "@/features/marketing/server/automaticImportPolicy";
 import { importMarketingPackage, marketingImportErrorCode } from "@/features/marketing/server/importJob";
 import { completeJobRun, failJobRun, startJobRun } from "@/features/operations-monitor/server/jobRuns";
 
@@ -9,10 +10,14 @@ export async function GET(request: Request) {
   try {
     const drive = createMarketingDriveClient();
     const manifestIds = await drive.listManifestFiles();
-    const summary = { imported: 0, duplicate: 0, rejected: 0 };
+    const summary = { imported: 0, duplicate: 0, rejected: 0, manualOnly: 0 };
     const errors: string[] = [];
     for (const manifestId of manifestIds) {
       try {
+        if (!shouldAutoImportManifest(JSON.parse(await readDriveText(drive, manifestId)) as unknown)) {
+          summary.manualOnly += 1;
+          continue;
+        }
         const result = await importMarketingPackage(manifestId, drive, "chatgpt_work");
         summary[result.duplicate ? "duplicate" : "imported"] += 1;
       } catch (error) {

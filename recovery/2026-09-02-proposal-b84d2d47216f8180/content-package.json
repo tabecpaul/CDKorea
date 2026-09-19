@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "proposal",
+  "packageId": "2026-09-02-proposal-b84d2d47216f8180",
+  "driveFolderId": "1cCziITUOlF_sQnDLkPdC4GOdiG8qICCM",
+  "content": {
+    "slug": "proposal-b84d2d47216f8180",
+    "title": "성격과 흥미가 맞는데도 일이 힘든 이유: 가치관 충돌",
+    "proposedDate": "2026-09-02"
+  },
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "proposal",
+    "sourceFileIds": [
+      "1C7p-pe08q1GLPwFVrxAg08dnrYC4_P44",
+      "11w-OhE3GB7zxTkY7dLgD8WdpoM_QugB-"
+    ]
+  }
+}

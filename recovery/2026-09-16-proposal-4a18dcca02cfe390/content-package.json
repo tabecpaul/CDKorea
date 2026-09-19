@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "proposal",
+  "packageId": "2026-09-16-proposal-4a18dcca02cfe390",
+  "driveFolderId": "1LzOoDhq3ja6mwzEVpLeJNk6YXz379xxg",
+  "content": {
+    "slug": "proposal-4a18dcca02cfe390",
+    "title": "부모의 기대와 나의 진로 사이에서 기준 세우기",
+    "proposedDate": "2026-09-16"
+  },
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "proposal",
+    "sourceFileIds": [
+      "1-uZfgKJBT3OwqSAElkBnNSssy86MrYLs",
+      "1DMHvZHJNxQSKtxsM3_eAKt9MAkfLTEfH"
+    ]
+  }
+}

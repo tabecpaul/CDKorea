@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "packageId": "2026-09-09-responsible-choices-while-waiting",
+  "driveFolderId": "1Fu4Y2jjAgHGKHEew8JUeHCWHdBo78_mm",
+  "content": {
+    "slug": "responsible-choices-while-waiting",
+    "title": "소명을 기다리는 시간에도 할 수 있는 책임 있는 선택",
+    "campaignKey": "faith_calling_series_2026q3",
+    "ctaKind": "callback-20m",
+    "naverCategory": "신앙과 소명"
+  },
+  "files": {
+    "naver": "1VOr5cD_WKPI-cwkwjIiKqoSFosgyCQnK",
+    "meta": "1vjzBVNbEm_Nn6q5NIOI3Tb3UUAQEfx6r",
+    "threads": "1dAzn5-j7GfuGsXIoJlJdnnk5Nx3P2PmV",
+    "images": [
+      "1VuzodQAbLBHCLqsRcQX4Ob1DIXDtTkVM",
+      "1hUWSzliuXsF9EsA-_5B_0K2U6oog8JDI",
+      "1UhKZj2zYmB9hMrYI3FIbLSKXi_D5p3fv",
+      "154Hs6tV6E9DocfO7vKbYlo8WNzxoTvy5",
+      "14hI9uzAEBgKPkjmyzDcVKf_YJPl-S5Eb"
+    ]
+  },
+  "schedules": [],
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "produced_unpublished",
+    "sourceFileIds": [
+      "1VOr5cD_WKPI-cwkwjIiKqoSFosgyCQnK",
+      "1vjzBVNbEm_Nn6q5NIOI3Tb3UUAQEfx6r",
+      "1dAzn5-j7GfuGsXIoJlJdnnk5Nx3P2PmV",
+      "1VuzodQAbLBHCLqsRcQX4Ob1DIXDtTkVM",
+      "1hUWSzliuXsF9EsA-_5B_0K2U6oog8JDI",
+      "1UhKZj2zYmB9hMrYI3FIbLSKXi_D5p3fv",
+      "154Hs6tV6E9DocfO7vKbYlo8WNzxoTvy5",
+      "14hI9uzAEBgKPkjmyzDcVKf_YJPl-S5Eb",
+      "1yfzduN4Tv5LbGOitpcIZCbR3amXwghvf",
+      "1e6298JLVkqqDiuVLH9bbeIJ_8w_aV6mj"
+    ]
+  }
+}

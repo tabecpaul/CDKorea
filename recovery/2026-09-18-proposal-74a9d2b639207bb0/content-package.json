@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "kind": "proposal",
+  "packageId": "2026-09-18-proposal-74a9d2b639207bb0",
+  "driveFolderId": "1LzOoDhq3ja6mwzEVpLeJNk6YXz379xxg",
+  "content": {
+    "slug": "proposal-74a9d2b639207bb0",
+    "title": "경력 공백을 약점이 아닌 경험의 증거로 바꾸는 법",
+    "proposedDate": "2026-09-18"
+  },
+  "recovery": {
+    "kind": "historical_recovery",
+    "sourceStatus": "proposal",
+    "sourceFileIds": [
+      "1-uZfgKJBT3OwqSAElkBnNSssy86MrYLs",
+      "1DMHvZHJNxQSKtxsM3_eAKt9MAkfLTEfH"
+    ]
+  }
+}
