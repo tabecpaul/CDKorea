@@ -4,9 +4,9 @@ import test from "node:test";
 import type { MarketingDriveClient, DriveFileMeta } from "../apps/www/src/features/marketing/server/drive.ts";
 import { prepareMarketingPackage } from "../apps/www/src/features/marketing/server/packagePreparation.ts";
 
-function png() {
+function png(width = 1080, height = 1350) {
   const bytes = new Uint8Array(24); bytes.set([137, 80, 78, 71, 13, 10, 26, 10]);
-  const view = new DataView(bytes.buffer); view.setUint32(16, 1080); view.setUint32(20, 1350); return bytes;
+  const view = new DataView(bytes.buffer); view.setUint32(16, width); view.setUint32(20, height); return bytes;
 }
 
 const imageIds = ["drive_image_01", "drive_image_02", "drive_image_03", "drive_image_04", "drive_image_05"];
@@ -17,13 +17,13 @@ const manifest = {
   schedules: [{ channel: "naver", scheduledAt: "2026-08-31T07:40:00+09:00", mode: "manual", utmUrl: "https://start.careerdirect.kr/career-check?utm_source=naver&utm_medium=organic_social&utm_campaign=campaign_key" }],
 };
 
-function fakeDrive(outside = new Set<string>(), threads = JSON.stringify(["첫 글", "둘째 글"])): MarketingDriveClient {
+function fakeDrive(outside = new Set<string>(), threads = JSON.stringify(["첫 글", "둘째 글"]), historical = false): MarketingDriveClient {
   const text = new Map<string, string>([
-    ["manifest_file_01", JSON.stringify(manifest)], [manifest.files.naver, "네이버 원고"], [manifest.files.meta, "Meta 문안"], [manifest.files.threads, threads],
+    ["manifest_file_01", JSON.stringify(historical ? { ...manifest, schedules: [], recovery: { kind: "historical_recovery", sourceStatus: "produced_unpublished", sourceFileIds: [manifest.files.naver] } } : manifest)], [manifest.files.naver, "네이버 원고"], [manifest.files.meta, "Meta 문안"], [manifest.files.threads, threads],
   ]);
   return {
     async metadata(id): Promise<DriveFileMeta> { return { id, name: imageIds.includes(id) ? `${id}.png` : `${id}.txt`, mimeType: imageIds.includes(id) ? "image/png" : id === "manifest_file_01" ? "application/json" : "text/plain", size: 24, parents: ["drive_folder_12345"] }; },
-    async download(id) { return imageIds.includes(id) ? png() : new TextEncoder().encode(text.get(id) ?? ""); },
+    async download(id) { return imageIds.includes(id) ? png(...(historical ? [1350, 1687] as const : [])) : new TextEncoder().encode(text.get(id) ?? ""); },
     async isWithinOperationsFolder(id) { return !outside.has(id); },
     async createFolder() { throw new Error("not used"); }, async upload() { throw new Error("not used"); }, async listManifestFiles() { return ["manifest_file_01"]; }, async listWeeklyPlanFiles() { return []; },
   };
@@ -34,6 +34,14 @@ test("prepares copy and ordered image hashes without changing Drive", async () =
   assert.equal(prepared.assets.length, 5);
   assert.equal(prepared.assets[0].driveFileId, imageIds[0]);
   assert.deepEqual(prepared.threadsPosts, ["첫 글", "둘째 글"]);
+});
+
+test("prepares verified historical cards at their unchanged source dimensions", async () => {
+  const prepared = await prepareMarketingPackage("manifest_file_01", fakeDrive(new Set(), JSON.stringify(["첫 글"]), true));
+  assert.equal(prepared.assets.length, 5);
+  assert.equal(prepared.assets[0].width, 1350);
+  assert.equal(prepared.assets[0].height, 1687);
+  assert.deepEqual(prepared.manifest.schedules, []);
 });
 
 test("preserves source numbered Threads Markdown as four posts for historical recovery", async () => {

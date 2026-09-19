@@ -47,6 +47,6 @@ export async function prepareMarketingPackage(manifestFileId: string, client: Ma
   const imageMeta = await Promise.all(manifest.files.images.map((fileId) => client.metadata(fileId)));
   return {
     manifest, naverBody: validateCopy(naverBody as string, "naver"), metaCaption: validateCopy(metaCaption as string, "meta"), threadsPosts: parseThreads(threadsRaw as string),
-    assets: imageBytes.map((bytes, index) => ({ ...validateMarketingPng(bytes as Uint8Array, imageMeta[index].name, imageMeta[index].mimeType), driveFileId: manifest.files.images[index] })),
+    assets: imageBytes.map((bytes, index) => ({ ...validateMarketingPng(bytes as Uint8Array, imageMeta[index].name, imageMeta[index].mimeType, { historicalRecovery: Boolean(manifest.recovery) }), driveFileId: manifest.files.images[index] })),
   };
 }

@@ -22,6 +22,15 @@ test("rejects MIME disguises and wrong dimensions", () => {
   assert.throws(() => validateMarketingPng(png(), "slide.jpg", "image/jpeg"), (error) => error instanceof AssetValidationError && error.code === "PNG_MIME_REQUIRED");
   assert.throws(() => validateMarketingPng(new Uint8Array(24), "fake.png"), (error) => error instanceof AssetValidationError && error.code === "PNG_SIGNATURE_INVALID");
   assert.throws(() => validateMarketingPng(png(1080, 1080), "square.png"), (error) => error instanceof AssetValidationError && error.code === "IMAGE_DIMENSIONS_INVALID");
+  assert.throws(() => validateMarketingPng(png(1350, 1687), "historical.png"), (error) => error instanceof AssetValidationError && error.code === "IMAGE_DIMENSIONS_INVALID");
+});
+
+test("historical recovery accepts only the verified original card dimensions", () => {
+  const original = validateMarketingPng(png(1350, 1687), "historical.png", "image/png", { historicalRecovery: true });
+  assert.equal(original.width, 1350);
+  assert.equal(original.height, 1687);
+  assert.throws(() => validateMarketingPng(png(1350, 1688), "altered.png", "image/png", { historicalRecovery: true }), (error) => error instanceof AssetValidationError && error.code === "IMAGE_DIMENSIONS_INVALID");
+  assert.throws(() => validateMarketingPng(png(1080, 1080), "square.png", "image/png", { historicalRecovery: true }), (error) => error instanceof AssetValidationError && error.code === "IMAGE_DIMENSIONS_INVALID");
 });
 
 test("allows four through eight assets only", () => {
