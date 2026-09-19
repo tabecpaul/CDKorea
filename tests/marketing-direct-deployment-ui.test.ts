@@ -8,10 +8,14 @@ test("authenticated dashboard displays deployment SHA and Production project ref
   assert.match(source, /process\.env\.VERCEL_GIT_COMMIT_SHA/);
 });
 
-test("both dashboard import forms offer read-only package preflight", () => {
+test("dashboard import and proposal promotion flows offer read-only package preflight", () => {
   for (const name of ["ImportPackageForm", "ImportProposalForm"]) {
     const source = readFileSync(new URL(`../apps/www/src/features/marketing/components/${name}.tsx`, import.meta.url), "utf8");
     assert.match(source, /\/api\/admin\/marketing\/preflight/);
     assert.match(source, /읽기 전용 점검/);
   }
+  const promotion = readFileSync(new URL("../apps/www/src/features/marketing/components/PromoteProposalForm.tsx", import.meta.url), "utf8");
+  assert.match(promotion, /proposal_review/);
+  assert.match(promotion, /\/api\/admin\/marketing\/preflight/);
+  assert.match(promotion, /읽기 전용 점검/);
 });
